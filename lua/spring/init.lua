@@ -21,6 +21,7 @@ end
 M.setup = function(opts)
   opts = opts or {}
   config = vim.tbl_deep_extend("force", {}, config, opts)
+
   create_user_command("SpringFindGetMapping", function()
     M.find_get_mapping(opts)
   end)
