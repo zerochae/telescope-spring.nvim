@@ -2,7 +2,7 @@ local finders = require "telescope.finders"
 local switch = require("spring.utils").switch
 local methods = require("spring.enum").methods
 
-local spring_finder = function(method)
+local find_by_method = function(method)
   local results = {}
 
   switch(method)
@@ -36,8 +36,14 @@ local spring_finder = function(method)
     end)
     .process()
 
+  return results
+end
+
+local spring_finder = function(method)
+  local results = find_by_method(method)
+
   return finders.new_table {
-    results,
+    results = results,
   }
 end
 
