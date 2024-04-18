@@ -24,19 +24,19 @@ M.setup = function(opts)
 
   create_user_command("SpringFindGetMapping", function()
     M.find_get_mapping(opts)
-  end)
+  end, {})
 
   create_user_command("SpringFindPostMapping", function()
     M.find_post_mapping(opts)
-  end)
+  end, {})
 
   create_user_command("SpringFindPutMapping", function()
     M.find_put_mapping(opts)
-  end)
+  end, {})
 
   create_user_command("SpringFindDeleteMapping", function()
     M.find_delete_mapping(opts)
-  end)
+  end, {})
 end
 
 return M
