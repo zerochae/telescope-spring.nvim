@@ -1,14 +1,14 @@
 local pickers = require "telescope.pickers"
 local spring_finder = require "spring.finder"
-local default_config = require("spring.enum").default_config
 
-local spring_picker = function(opts)
+local spring_picker = function(opts, method)
+  local finder_by_method = spring_finder(method)
+
   return pickers.new(opts, {
-    prompt_title = default_config.prompt_title,
-    finder = spring_finder,
+    finder = finder_by_method,
   })
 end
 
-return function(opts)
-  spring_picker(opts or {}):find()
+return function(opts, method)
+  spring_picker(opts or {}, method):find()
 end
