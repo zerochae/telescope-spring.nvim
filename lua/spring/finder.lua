@@ -1,11 +1,11 @@
 local finders = require "telescope.finders"
-local utils = require "spring.utils"
+local switch = require("spring.utils").switch
 local methods = require("spring.enum").methods
 
 local spring_finder = function(method)
-  local results = nil
-  utils
-    .switch(method)
+  local results = {}
+
+  switch(method)
     .case(methods.GET, function()
       results = {
         "api/get/v1/foo/bar",
@@ -34,6 +34,7 @@ local spring_finder = function(method)
         "api/v1/foo/bar/{id}/test",
       }
     end)
+    .process()
 
   return finders.new_table {
     results,
