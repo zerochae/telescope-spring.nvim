@@ -2,6 +2,10 @@ local M = {}
 
 M.default_config = {
   prompt_title = "spring api finder",
+  get_prompt_title = "get api finder",
+  post_prompt_title = "post api finder",
+  put_prompt_title = "put api finder",
+  delete_prompt_title = "delete api finder",
 }
 
 M.methods = {
