@@ -1,6 +1,6 @@
 local M = {}
 
-local enum = require "telescope._extensions.spring.enum"
+local enum = require "spring.enum"
 local method_enum = enum.methods
 local cmd_enum = enum.cmd
 local args_enum = enum.args
