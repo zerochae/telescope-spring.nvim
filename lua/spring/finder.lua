@@ -35,7 +35,7 @@ local spring_finder = function(method)
       }
     end)
 
-  finders.new_table {
+  return finders.new_table {
     results,
   }
 end
