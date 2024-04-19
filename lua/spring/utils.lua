@@ -35,7 +35,7 @@ M.switch = function(element)
 end
 
 local function trim(str)
-  return (str:gsub("^%s*(.-)%s*$", "%1"))
+  return str:gsub("^%s*(.-)%s*$", "%1")
 end
 
 local function remove_annotation(str)
@@ -47,7 +47,7 @@ local function remove_annotation(str)
   return api
 end
 
-M.get_root_path = function()
+local get_root_path = function()
   local cmd = cmd_enum.GET_ROOT
   local git_root = vim.fn.system(cmd)
 
@@ -55,8 +55,8 @@ M.get_root_path = function()
   return git_root
 end
 
-M.grep_file = function(method)
-  local root_path = M.get_root_path()
+M.grep = function(method)
+  local root_path = get_root_path()
 
   local grep_cmd = cmd_enum.GREP .. " " .. args_enum.EXACT
   local full_path = root_path .. args_enum.ALL_JAVA_FILE

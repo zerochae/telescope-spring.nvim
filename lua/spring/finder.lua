@@ -1,8 +1,14 @@
 local finders = require "telescope.finders"
-local switch = require("spring.utils").switch
+local utils = require "spring.utils"
+local switch = utils.switch
+local grep = utils.grep
 local methods = require("spring.enum").methods
 
 local find_get_mapping = function()
+  local get_results = grep(methods.GET)
+
+  print(vim.inspect(get_results))
+
   return {
     "api/get/v1/foo/bar",
     "api/v1/foo/bar/{id}",
