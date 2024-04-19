@@ -6,20 +6,20 @@ local spring_picker = require "spring.picker"
 local methods = require("spring.enum").methods
 
 M.pick_all_mapping = function(opts)
-  spring_picker(opts, methods.ALL)
+  spring_picker(methods.ALL, opts)
 end
 
 M.pick_get_mapping = function(opts)
-  spring_picker(opts, methods.GET)
+  spring_picker(methods.GET, opts)
 end
 M.pick_post_mapping = function(opts)
-  spring_picker(opts, methods.POST)
+  spring_picker(methods.POST, opts)
 end
 M.pick_put_mapping = function(opts)
-  spring_picker(opts, methods.PUT)
+  spring_picker(methods.PUT, opts)
 end
 M.pick_delete_mapping = function(opts)
-  spring_picker(opts, methods.DELETE)
+  spring_picker(methods.DELETE, opts)
 end
 
 M.setup = function(opts)

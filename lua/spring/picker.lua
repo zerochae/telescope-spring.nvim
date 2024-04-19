@@ -2,7 +2,7 @@ local pickers = require "telescope.pickers"
 local spring_finder = require "spring.finder"
 local spring_previewer = require "spring.previewer"
 
-local spring_picker = function(opts, method)
+local spring_picker = function(method, opts)
   local finder_by_method = spring_finder(method)
   local previewer_by_method = spring_previewer(method)
 
