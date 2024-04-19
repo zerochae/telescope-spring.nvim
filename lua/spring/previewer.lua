@@ -9,7 +9,7 @@ local preview_by_method = function(self, entry, method)
 
   -- add syntax highlighting in previewer
   local ft = (vim.filetype.match { buf = bufnr } or "diff"):match "%w+"
-  require("telescope.previewers.utils").highlighter(self.state.bufnr, ft)
+  require("telescope.previewers.util").highlighter(self.state.bufnr, ft)
 end
 
 local spring_previewer = function(method)

@@ -1,64 +1,25 @@
 local finders = require "telescope.finders"
-local utils = require "spring.utils"
-local switch = utils.switch
-local grep = utils.grep
-local methods = require("spring.enum").methods
+local U = require "spring.util"
+local E = require "spring.enum"
 
-local find_get_mapping = function()
-  local get_results = grep(methods.GET)
-
-  print(vim.inspect(get_results))
-
-  return {
-    "api/get/v1/foo/bar",
-    "api/v1/foo/bar/{id}",
-    "api/v1/foo/bar/{id}/test",
-  }
-end
-
-local find_post_mapping = function()
-  return {
-    "api/post/v1/foo/bar",
-    "api/v1/foo/bar/{id}",
-    "api/v1/foo/bar/{id}/test",
-  }
-end
-
-local find_put_mapping = function()
-  return {
-    "api/post/v1/foo/bar",
-    "api/v1/foo/bar/{id}",
-    "api/v1/foo/bar/{id}/test",
-  }
-end
-
-local find_delete_mapping = function()
-  return {
-    "api/delete/v1/foo/bar",
-    "api/v1/foo/bar/{id}",
-    "api/v1/foo/bar/{id}/test",
-  }
-end
+local spring_table = {
+  [E.annotation.REQUEST_MAPPING] = {},
+  [E.annotation.GET_MAPPING] = {},
+  [E.annotation.POST_MAPPING] = {},
+  [E.annotation.PUT_MAPPING] = {},
+  [E.annotation.DELETE_MAPPING] = {},
+}
 
 local find_results_by_method = function(method)
-  local results = {}
+  local grep_results = U.grep(method)
+  local annotation = U.method_to_annotation(method)
+  local mapping_table = spring_table[annotation]
 
-  switch(method)
-    .case(methods.GET, function()
-      results = find_get_mapping()
-    end)
-    .case(methods.POST, function()
-      results = find_post_mapping()
-    end)
-    .case(methods.PUT, function()
-      results = find_put_mapping()
-    end)
-    .case(methods.DELETE, function()
-      results = find_delete_mapping()
-    end)
-    .process()
+  if U.get_table_length(mapping_table) == 0 then
+    U.insert_results(grep_results, mapping_table)
+  end
 
-  return results
+  return mapping_table
 end
 
 local spring_finder = function(method)
