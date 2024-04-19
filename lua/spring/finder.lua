@@ -2,37 +2,53 @@ local finders = require "telescope.finders"
 local switch = require("spring.utils").switch
 local methods = require("spring.enum").methods
 
-local find_by_method = function(method)
+local find_get_mapping = function()
+  return {
+    "api/get/v1/foo/bar",
+    "api/v1/foo/bar/{id}",
+    "api/v1/foo/bar/{id}/test",
+  }
+end
+
+local find_post_mapping = function()
+  return {
+    "api/post/v1/foo/bar",
+    "api/v1/foo/bar/{id}",
+    "api/v1/foo/bar/{id}/test",
+  }
+end
+
+local find_put_mapping = function()
+  return {
+    "api/post/v1/foo/bar",
+    "api/v1/foo/bar/{id}",
+    "api/v1/foo/bar/{id}/test",
+  }
+end
+
+local find_delete_mapping = function()
+  return {
+    "api/delete/v1/foo/bar",
+    "api/v1/foo/bar/{id}",
+    "api/v1/foo/bar/{id}/test",
+  }
+end
+
+local find_results_by_method = function(method)
   local results = {}
 
   switch(method)
     .case(methods.GET, function()
-      results = {
-        "api/get/v1/foo/bar",
-        "api/v1/foo/bar/{id}",
-        "api/v1/foo/bar/{id}/test",
-      }
+      results = find_get_mapping()
     end)
     .case(methods.POST, function()
-      results = {
-        "api/post/v1/foo/bar",
-        "api/v1/foo/bar/{id}",
-        "api/v1/foo/bar/{id}/test",
-      }
+      results = find_post_mapping()
     end)
     .case(methods.PUT, function()
-      results = {
-        "api/put/v1/foo/bar",
-        "api/v1/foo/bar/{id}",
-        "api/v1/foo/bar/{id}/test",
-      }
+      results = find_put_mapping()
     end)
     .case(methods.DELETE, function()
-      results = {
-        "api/delete/v1/foo/bar",
-        "api/v1/foo/bar/{id}",
-        "api/v1/foo/bar/{id}/test",
-      }
+      results = find_delete_mapping()
     end)
     .process()
 
@@ -40,10 +56,8 @@ local find_by_method = function(method)
 end
 
 local spring_finder = function(method)
-  local results = find_by_method(method)
-
   return finders.new_table {
-    results = results,
+    results = find_results_by_method(method),
   }
 end
 
