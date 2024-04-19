@@ -9,6 +9,7 @@ M.default_config = {
 }
 
 M.methods = {
+  ALL = "ALL",
   GET = "GET",
   POST = "POST",
   PUT = "PUT",
