@@ -4,6 +4,7 @@ local enum = require "spring.enum"
 local method_enum = enum.methods
 local cmd_enum = enum.cmd
 local args_enum = enum.args
+local annotation_enum = enum.annotation
 
 M.switch = function(element)
   local Table = {
@@ -58,10 +59,12 @@ end
 M.grep = function(method)
   local root_path = get_root_path()
 
+  local annotation = annotation_enum[method .. "_MAPPING"]
+
   local grep_cmd = cmd_enum.GREP .. " " .. args_enum.EXACT
   local full_path = root_path .. args_enum.ALL_JAVA_FILE
 
-  local cmd = grep_cmd .. " " .. method .. " " .. full_path
+  local cmd = grep_cmd .. " " .. annotation .. " " .. full_path
 
   local output = vim.fn.system(cmd)
 
