@@ -17,11 +17,11 @@ M.methods = {
 }
 
 M.annotation = {
-  REQUEST_MAPPING = "'@RequestMapping'",
-  GET_MAPPING = "'@GetMapping'",
-  POST_MAPPING = "'@PostMapping'",
-  PUT_MAPPING = "'@PutMapping'",
-  DELETE_MAPPING = "'@DeleteMapping'",
+  REQUEST_MAPPING = "@RequestMapping",
+  GET_MAPPING = "@GetMapping",
+  POST_MAPPING = "@PostMapping",
+  PUT_MAPPING = "@PutMapping",
+  DELETE_MAPPING = "@DeleteMapping",
 }
 
 M.cmd = {
