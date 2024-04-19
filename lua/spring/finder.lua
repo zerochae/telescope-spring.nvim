@@ -1,5 +1,6 @@
 local finders = require "telescope.finders"
 local U = require "spring.util"
+local H = require "spring.helper"
 local E = require "spring.enum"
 
 local spring_table = {
@@ -12,10 +13,10 @@ local spring_table = {
 
 local find_results_by_method = function(method)
   local grep_results = U.grep(method)
-  local annotation = U.method_to_annotation(method)
+  local annotation = U.get_annotation(method)
   local mapping_table = spring_table[annotation]
 
-  if U.get_table_length(mapping_table) == 0 then
+  if H.get_table_length(mapping_table) == 0 then
     U.insert_results(grep_results, mapping_table)
   end
 

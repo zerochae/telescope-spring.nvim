@@ -10,14 +10,17 @@ local get_root_path = function()
   return git_root
 end
 
-M.method_to_annotation = function(method)
-  return method .. "_MAPPING"
+M.get_annotation = function(method)
+  local annotation = E.annotation[method .. "_MAPPING"]
+
+  return annotation or E.annotation.REQUEST_MAPPING
 end
 
 M.grep = function(method)
+
   local root_path = get_root_path()
 
-  local annotation = E.annotation[M.method_to_annotation(method)]
+  local annotation = M.get_annotation(method)
 
   local grep_cmd = E.cmd.GREP .. " " .. E.args.EXACT
   local full_path = root_path .. E.args.ALL_JAVA_FILE
