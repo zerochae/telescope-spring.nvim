@@ -3,7 +3,8 @@ local M = {}
 local E = require "spring.enum"
 local H = require "spring.helper"
 
-local spring_table = {}
+local spring_finder_table = {}
+local spring_previewer_table = {}
 
 local created_spring_table = {
   [E.annotation.REQUEST_MAPPING] = false,
@@ -59,19 +60,23 @@ local is_created_spring_table = function(annotation)
 end
 
 local get_request_mapping_value = function(path)
-  if not spring_table[path] then
+  if not spring_finder_table[path] then
     return ""
   end
 
-  if not spring_table[path][E.annotation.REQUEST_MAPPING] then
+  if not spring_finder_table[path][E.annotation.REQUEST_MAPPING] then
     return ""
   end
 
-  return spring_table[path][E.annotation.REQUEST_MAPPING].value
+  return spring_finder_table[path][E.annotation.REQUEST_MAPPING].value
 end
 
-M.get_spring_table = function()
-  return spring_table
+M.get_spring_priviewer_table = function()
+  return spring_previewer_table
+end
+
+M.get_spring_finder_table = function()
+  return spring_finder_table
 end
 
 M.create_request_mapping_table = function()
@@ -95,15 +100,24 @@ end
 --   return finder_results
 -- end
 
+local crate_preview_table = function(path, endpoint, line_number, column)
+  spring_previewer_table[endpoint] = {
+    path = path,
+    line_number = line_number,
+    column = column,
+  }
+end
+
 M.get_finder_results = function(annotation)
   local finder_results = {}
 
-  for path, mapping_object in pairs(spring_table) do
+  for path, mapping_object in pairs(spring_finder_table) do
     local request_mapping_value = get_request_mapping_value(path)
     if mapping_object[annotation] then
       local method = get_method(annotation)
       local method_mapping_value = mapping_object[annotation].value
       local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
+      crate_preview_table(path, endpoint, mapping_object[annotation].line_number, mapping_object[annotation].column)
       table.insert(finder_results, endpoint)
     end
   end
@@ -124,15 +138,15 @@ M.create_spring_table = function(annotation)
   for line in tostring(grep_results):gmatch "[^\n]+" do
     local path, line_number, column, value = H.split(line, ":")
 
-    if not spring_table[path] then
-      spring_table[path] = {}
+    if not spring_finder_table[path] then
+      spring_finder_table[path] = {}
     end
 
-    if not spring_table[path][annotation] then
-      spring_table[path][annotation] = {}
+    if not spring_finder_table[path][annotation] then
+      spring_finder_table[path][annotation] = {}
     end
 
-    spring_table[path][annotation] = {
+    spring_finder_table[path][annotation] = {
       value = get_mapping_value(value),
       line_number = line_number,
       column = column,
