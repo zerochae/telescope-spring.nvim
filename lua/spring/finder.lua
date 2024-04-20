@@ -1,31 +1,35 @@
 local finders = require "telescope.finders"
 local U = require "spring.util"
-local H = require "spring.helper"
 local E = require "spring.enum"
 
-local spring_table = {
-  [E.annotation.REQUEST_MAPPING] = {},
-  [E.annotation.GET_MAPPING] = {},
-  [E.annotation.POST_MAPPING] = {},
-  [E.annotation.PUT_MAPPING] = {},
-  [E.annotation.DELETE_MAPPING] = {},
-}
+local create_all_restuls_table = function()
+  U.create_request_mapping_table()
+  U.create_spring_table(E.methods.GET)
+  U.create_spring_table(E.methods.POST)
+  U.create_spring_table(E.methods.PUT)
+  U.create_spring_table(E.methods.DELETE)
+end
 
-local find_results_by_method = function(method)
-  local grep_results = U.grep(method)
-  local annotation = U.get_annotation(method)
-  local mapping_table = spring_table[annotation]
-
-  if H.get_table_length(mapping_table) == 0 then
-    U.insert_results(grep_results, mapping_table)
-  end
-
-  return mapping_table
+local create_finder_results_table = function(annotation)
+  U.create_request_mapping_table()
+  U.create_spring_table(annotation)
 end
 
 local spring_finder = function(method)
+  local finder_results = {}
+
+  if method == E.methods.ALL then
+    error "All is not support"
+    -- create_all_restuls_table()
+    -- finder_results = U.get_all_finder_results()
+  else
+    local annotation = U.get_annotation(method)
+    create_finder_results_table(annotation)
+    finder_results = U.get_finder_results(annotation)
+  end
+
   return finders.new_table {
-    results = find_results_by_method(method),
+    results = finder_results,
   }
 end
 
