@@ -9,7 +9,7 @@ local spring_picker = function(opts, method)
 
   return pickers.new(opts, {
     finder = finder_by_method,
-    previewer = previewer_by_method,
+    -- previewer = previewer_by_method,
   })
 end
 

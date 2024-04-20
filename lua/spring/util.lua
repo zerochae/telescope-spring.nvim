@@ -11,7 +11,7 @@ end
 M.grep = function(method)
   local annotation = M.get_annotation(method)
 
-  local cmd = vim.tbl_flatten { "rg", annotation, "--type", "java", "--line-number" }
+  local cmd = "rg " .. annotation .. " --type java --line-number"
 
   local output = vim.fn.system(cmd)
 
