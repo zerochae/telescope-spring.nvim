@@ -1,22 +1,33 @@
 local previewers = require "telescope.previewers"
+local conf = require("telescope.config").values
+local U = require "spring.util"
 
-local bufnr = vim.api.nvim_get_current_buf()
+local previewer = function(self, entry)
+  local preview_table = U.get_spring_priviewer_table()
+  local endpoint = entry[1]
 
-local preview_by_method = function(self, entry, method)
-  -- add content
-  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+  local path = preview_table[endpoint].path
+  local line_number = preview_table[endpoint].line_number
+  local column = preview_table[endpoint].column
+  entry.lnum = line_number
+  entry.col = column
+  local bufnr = self.state.bufnr
 
-  -- add syntax highlighting in previewer
-  local ft = (vim.filetype.match { buf = bufnr } or "diff"):match "%w+"
-  require("telescope.previewers.util").highlighter(self.state.bufnr, ft)
+  conf.buffer_previewer_maker(path, bufnr, {
+    callback = function()
+      local lnum, lnend = entry.lnum - 1, (entry.lnend or entry.lnum) - 1
+      local middle_ln = math.floor(lnum + (lnend - lnum) / 2)
+      pcall(vim.api.nvim_win_set_cursor, self.state.winid, { middle_ln, 0 })
+      vim.api.nvim_buf_call(bufnr, function()
+        vim.cmd "norm! zz"
+      end)
+    end,
+  })
 end
 
-local spring_previewer = function(method)
+local spring_previewer = function()
   return previewers.new_buffer_previewer {
-    define_preview = function(self, entry)
-      preview_by_method(self, entry, method)
-    end,
+    define_preview = previewer,
   }
 end
 
