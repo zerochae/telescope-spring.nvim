@@ -2,7 +2,7 @@ local M = {}
 
 local E = require "spring.enum"
 
-local get_annotation = function(method)
+M.get_annotation = function(method)
   local annotation = E.annotation[method .. "_MAPPING"]
 
   return annotation or E.annotation.REQUEST_MAPPING
@@ -30,7 +30,7 @@ local run_cmd = function(cmd)
 end
 
 M.grep = function(method)
-  local annotation = get_annotation(method)
+  local annotation = M.get_annotation(method)
   local cmd = get_grep_cmd(annotation)
   local output = run_cmd(cmd)
 
