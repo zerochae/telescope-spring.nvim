@@ -1,8 +1,9 @@
 local pickers = require "telescope.pickers"
 local spring_finder = require "spring.finder"
 local spring_previewer = require "spring.previewer"
+local E = require "spring.enum"
 
-local spring_picker = function(method, opts)
+local spring_picker = function(opts, method)
   local finder_by_method = spring_finder(method)
   local previewer_by_method = spring_previewer(method)
 
@@ -13,5 +14,7 @@ local spring_picker = function(method, opts)
 end
 
 return function(opts, method)
-  spring_picker(opts or {}, method):find()
+  opts = opts or {}
+  method = method or E.methods.GET
+  spring_picker(opts, method):find()
 end

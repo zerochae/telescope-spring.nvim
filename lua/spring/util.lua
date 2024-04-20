@@ -2,14 +2,6 @@ local M = {}
 
 local E = require "spring.enum"
 
-local get_root_path = function()
-  local cmd = E.cmd.GET_ROOT
-  local git_root = vim.fn.system(cmd)
-
-  git_root = git_root:gsub("^%s+", ""):gsub("%s+$", "")
-  return git_root
-end
-
 M.get_annotation = function(method)
   local annotation = E.annotation[method .. "_MAPPING"]
 
@@ -17,15 +9,9 @@ M.get_annotation = function(method)
 end
 
 M.grep = function(method)
-
-  local root_path = get_root_path()
-
   local annotation = M.get_annotation(method)
 
-  local grep_cmd = E.cmd.GREP .. " " .. E.args.EXACT
-  local full_path = root_path .. E.args.ALL_JAVA_FILE
-
-  local cmd = grep_cmd .. " " .. annotation .. " " .. full_path
+  local cmd = vim.tbl_flatten { "rg", annotation, "--type", "java", "--line-number" }
 
   local output = vim.fn.system(cmd)
 
