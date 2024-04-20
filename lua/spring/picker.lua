@@ -15,6 +15,6 @@ end
 
 return function(opts, method)
   opts = opts or {}
-  method = method or E.methods.GET
+  method = method or E.methods.ALL
   spring_picker(opts, method):find()
 end
