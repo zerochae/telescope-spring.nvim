@@ -16,7 +16,9 @@ return function(prompt_bufnr)
     local bufnr = vim.fn.bufnr()
 
     vim.api.nvim_set_current_buf(bufnr)
-    U.set_cursor_on_entry(entry, bufnr, 0)
+    vim.schedule(function()
+      U.set_cursor_on_entry(entry, bufnr, 0)
+    end)
   end)
   return true
 end

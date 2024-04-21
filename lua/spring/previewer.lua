@@ -23,7 +23,9 @@ return function(annotation)
 
       conf.buffer_previewer_maker(path, bufnr, {
         callback = function()
-          U.set_cursor_on_entry(entry, bufnr, self.state.winid)
+          vim.schedule(function()
+            U.set_cursor_on_entry(entry, bufnr, self.state.winid)
+          end)
         end,
       })
     end,
