@@ -31,18 +31,28 @@ M.get_method = function(annotation)
   return method
 end
 
-local get_mapping_value = function(mapping)
+local get_mapping_value = function(mapping, path)
   if not mapping then
     return ""
   end
 
   local _, value = mapping:match '@(.-)%("%s*(/.-)"%)'
 
-  if not value then
-    return ""
+  if value then
+    return value
   end
 
-  return value
+  local variable_value = mapping:match "%((.-)%)"
+
+  if variable_value then
+    local cmd = "rg" .. " " .. variable_value .. " " .. "=" .. " " .. path
+    local grep_results = H.run_cmd(cmd)
+    variable_value = grep_results:match '"(%/.-)"'
+
+    return variable_value
+  end
+
+  return ""
 end
 
 local get_grep_cmd = function(annotation)
@@ -210,9 +220,9 @@ M.create_spring_find_table = function(annotation)
       local path, line_number, column, value = H.split(line, ":")
       create_find_table_if_not_exist(path, annotation)
       if annotation == E.annotation.REQUEST_MAPPING then
-        insert_to_find_request_table(path, annotation, get_mapping_value(value), line_number, column)
+        insert_to_find_request_table(path, annotation, get_mapping_value(value, path), line_number, column)
       else
-        insert_to_find_table(path, annotation, get_mapping_value(value), line_number, column)
+        insert_to_find_table(path, annotation, get_mapping_value(value, path), line_number, column)
       end
     end
   end
