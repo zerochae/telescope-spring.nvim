@@ -14,6 +14,8 @@ return function(opts, method)
 
   return pickers
     .new(opts, {
+      prompt_title = " Endpoint",
+      preview_title = "  Preview",
       finder = finder,
       previewer = previewer,
       sorter = sorter,
