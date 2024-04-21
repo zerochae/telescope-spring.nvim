@@ -18,9 +18,11 @@ return function(annotation)
         local request_mapping_value = U.get_request_mapping_value(path)
         if mapping_object[annotation] then
           local method = U.get_method(annotation)
-          local method_mapping_value = mapping_object[annotation].value
-          local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-          table.insert(finder_results, endpoint)
+          for _, mapping_item in ipairs(mapping_object[annotation]) do
+            local method_mapping_value = mapping_item.value
+            local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
+            table.insert(finder_results, endpoint)
+          end
         end
       end
 

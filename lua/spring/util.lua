@@ -101,16 +101,17 @@ M.create_spring_preview_table = function(annotation)
     local request_mapping_value = M.get_request_mapping_value(path)
     if mapping_object[annotation] then
       local method = M.get_method(annotation)
-      local method_mapping_value = mapping_object[annotation].value
-      local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-      local line_number = mapping_object[annotation].line_number
-      local column = mapping_object[annotation].column
-
-      spring_preview_table[endpoint] = {
-        path = path,
-        line_number = line_number,
-        column = column,
-      }
+      for _, mapping_item in ipairs(mapping_object[annotation]) do
+        local method_mapping_value = mapping_item.value
+        local line_number = mapping_item.line_number
+        local column = mapping_item.column
+        local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
+        spring_preview_table[endpoint] = {
+          path = path,
+          line_number = line_number,
+          column = column,
+        }
+      end
     end
   end
 end
@@ -136,11 +137,15 @@ M.create_spring_find_table = function(annotation)
       spring_find_table[path][annotation] = {}
     end
 
-    spring_find_table[path][annotation] = {
-      value = get_mapping_value(value),
-      line_number = line_number,
-      column = column,
-    }
+    if annotation == E.annotation.REQUEST_MAPPING then
+      spring_find_table[path][annotation] =
+        { value = get_mapping_value(value), line_number = line_number, column = column }
+    else
+      table.insert(
+        spring_find_table[path][annotation],
+        { value = get_mapping_value(value), line_number = line_number, column = column }
+      )
+    end
   end
 end
 
