@@ -1,6 +1,7 @@
 local pickers = require "telescope.pickers"
 local spring_finder = require "spring.finder"
 local spring_previewer = require "spring.previewer"
+local spring_actions = require "spring.actions"
 local conf = require("telescope.config").values
 local U = require "spring.util"
 
@@ -16,6 +17,7 @@ return function(opts, method)
       finder = finder,
       previewer = previewer,
       sorter = sorter,
+      attach_mappings = spring_actions,
     })
     :find()
 end
