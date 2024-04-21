@@ -3,11 +3,18 @@ local M = {}
 local E = require "spring.enum"
 local H = require "spring.helper"
 
-local spring_finder_table = {}
-local spring_previewer_table = {}
+local spring_find_table = {}
+local spring_preview_table = {}
 
-local created_spring_table = {
+local created_spring_find_table = {
   [E.annotation.REQUEST_MAPPING] = false,
+  [E.annotation.GET_MAPPING] = false,
+  [E.annotation.POST_MAPPING] = false,
+  [E.annotation.PUT_MAPPING] = false,
+  [E.annotation.DELETE_MAPPING] = false,
+}
+
+local created_spring_preview_table = {
   [E.annotation.GET_MAPPING] = false,
   [E.annotation.POST_MAPPING] = false,
   [E.annotation.PUT_MAPPING] = false,
@@ -19,7 +26,7 @@ M.get_annotation = function(method)
   return annotation
 end
 
-local get_method = function(annotation)
+M.get_method = function(annotation)
   local method = string.upper((annotation):gsub("^@", ""):gsub("Mapping$", ""))
   return method
 end
@@ -55,82 +62,65 @@ local get_grep_cmd = function(annotation)
   end
 end
 
-local is_created_spring_table = function(annotation)
-  return created_spring_table[annotation]
+local is_created_find_table = function(annotation)
+  return created_spring_find_table[annotation]
 end
 
-local get_request_mapping_value = function(path)
-  if not spring_finder_table[path] then
+local is_created_preview_table = function(annotation)
+  return created_spring_preview_table[annotation]
+end
+
+M.get_request_mapping_value = function(path)
+  if not spring_find_table[path] then
     return ""
   end
 
-  if not spring_finder_table[path][E.annotation.REQUEST_MAPPING] then
+  if not spring_find_table[path][E.annotation.REQUEST_MAPPING] then
     return ""
   end
 
-  return spring_finder_table[path][E.annotation.REQUEST_MAPPING].value
+  return spring_find_table[path][E.annotation.REQUEST_MAPPING].value
 end
 
-M.get_spring_priviewer_table = function()
-  return spring_previewer_table
+M.get_spring_priview_table = function()
+  return spring_preview_table
 end
 
-M.get_spring_finder_table = function()
-  return spring_finder_table
+M.get_spring_find_table = function()
+  return spring_find_table
 end
 
-M.create_request_mapping_table = function()
-  M.create_spring_table(E.annotation.REQUEST_MAPPING)
-end
-
--- TODO: get All mappings
--- M.get_all_finder_results = function()
---   local finder_results = {}
---
---   for path, mapping_object in pairs(spring_table) do
---     local request_mapping_value = get_request_mapping_value(path)
---     if mapping_object[annotation] then
---       local method = get_method(annotation)
---       local method_mapping_value = mapping_object[annotation].value
---       local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
---       table.insert(finder_results, endpoint)
---     end
---   end
---
---   return finder_results
--- end
-
-local crate_preview_table = function(path, endpoint, line_number, column)
-  spring_previewer_table[endpoint] = {
-    path = path,
-    line_number = line_number,
-    column = column,
-  }
-end
-
-M.get_finder_results = function(annotation)
-  local finder_results = {}
-
-  for path, mapping_object in pairs(spring_finder_table) do
-    local request_mapping_value = get_request_mapping_value(path)
-    if mapping_object[annotation] then
-      local method = get_method(annotation)
-      local method_mapping_value = mapping_object[annotation].value
-      local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-      crate_preview_table(path, endpoint, mapping_object[annotation].line_number, mapping_object[annotation].column)
-      table.insert(finder_results, endpoint)
-    end
-  end
-
-  return finder_results
-end
-
-M.create_spring_table = function(annotation)
-  if is_created_spring_table(annotation) then
+M.create_spring_preview_table = function(annotation)
+  if is_created_preview_table(annotation) then
     return
   end
 
-  created_spring_table[annotation] = true
+  created_spring_preview_table[annotation] = true
+
+  for path, mapping_object in pairs(spring_find_table) do
+    local request_mapping_value = M.get_request_mapping_value(path)
+    if mapping_object[annotation] then
+      local method = M.get_method(annotation)
+      local method_mapping_value = mapping_object[annotation].value
+      local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
+      local line_number = mapping_object[annotation].line_number
+      local column = mapping_object[annotation].column
+
+      spring_preview_table[endpoint] = {
+        path = path,
+        line_number = line_number,
+        column = column,
+      }
+    end
+  end
+end
+
+M.create_spring_find_table = function(annotation)
+  if is_created_find_table(annotation) then
+    return
+  end
+
+  created_spring_find_table[annotation] = true
 
   local cmd = get_grep_cmd(annotation)
   local grep_results = H.run_cmd(cmd)
@@ -138,15 +128,15 @@ M.create_spring_table = function(annotation)
   for line in tostring(grep_results):gmatch "[^\n]+" do
     local path, line_number, column, value = H.split(line, ":")
 
-    if not spring_finder_table[path] then
-      spring_finder_table[path] = {}
+    if not spring_find_table[path] then
+      spring_find_table[path] = {}
     end
 
-    if not spring_finder_table[path][annotation] then
-      spring_finder_table[path][annotation] = {}
+    if not spring_find_table[path][annotation] then
+      spring_find_table[path][annotation] = {}
     end
 
-    spring_finder_table[path][annotation] = {
+    spring_find_table[path][annotation] = {
       value = get_mapping_value(value),
       line_number = line_number,
       column = column,
