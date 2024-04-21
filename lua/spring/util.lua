@@ -139,8 +139,6 @@ local function split_request_mapping(mapping_string)
   local mapping_value = mapping_string:match 'value%s*=%s*"([^"]+)"' or ""
   local mapping_method_list = {}
 
-  print(mapping_method)
-
   if mapping_methods then
     for method in mapping_methods:gmatch "RequestMethod%.(%w+)" do
       table.insert(mapping_method_list, method:gsub("RequestMethod%.", ""):upper())
