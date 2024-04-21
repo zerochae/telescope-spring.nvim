@@ -116,6 +116,52 @@ M.create_spring_preview_table = function(annotation)
   end
 end
 
+local is_mapping_has_option = function(mapping)
+  if H.find(mapping, "method =") ~= nil then
+    return true
+  end
+
+  if H.find(mapping, "value =") ~= nil then
+    return true
+  end
+
+  return false
+end
+
+local is_request_mapping = function(mapping)
+  return H.find(mapping, E.annotation.REQUEST_MAPPING)
+end
+
+local function split_request_mapping(str)
+  local parts = {}
+  for part in str:gmatch "[^:]+" do
+    table.insert(parts, part)
+  end
+
+  local mapping_method_string = str:match "method%s*=%s*(%b{})"
+  local mapping_value = str:match 'value%s*=%s*"([^"]+)"'
+  local path, line_number, column = parts[1], tonumber(parts[2]), tonumber(parts[3])
+
+  local mapping_method = {}
+  for method in mapping_method_string:gmatch "RequestMethod%.(%w+)" do
+    method = method:gsub("RequestMethod%.", ""):upper()
+    table.insert(mapping_method, method)
+  end
+
+  return path, line_number, column, mapping_value, mapping_method
+end
+
+
+local create_find_table_if_not_exist = function(path, annotation)
+  if not spring_find_table[path] then
+    spring_find_table[path] = {}
+  end
+
+  if not spring_find_table[path][annotation] then
+    spring_find_table[path][annotation] = {}
+  end
+end
+
 M.create_spring_find_table = function(annotation)
   if is_created_find_table(annotation) then
     return
@@ -127,24 +173,48 @@ M.create_spring_find_table = function(annotation)
   local grep_results = H.run_cmd(cmd)
 
   for line in tostring(grep_results):gmatch "[^\n]+" do
-    local path, line_number, column, value = H.split(line, ":")
+    if is_mapping_has_option(line) then
+      if is_request_mapping(line) then
+        local path, line_number, column, mapping_value, mapping_method = split_request_mapping(line)
+        for _, method in ipairs(mapping_method) do
+          local mapping_annotation = M.get_annotation(method)
 
-    if not spring_find_table[path] then
-      spring_find_table[path] = {}
-    end
+          create_find_table_if_not_exist(path, mapping_annotation)
 
-    if not spring_find_table[path][annotation] then
-      spring_find_table[path][annotation] = {}
-    end
-
-    if annotation == E.annotation.REQUEST_MAPPING then
-      spring_find_table[path][annotation] =
-        { value = get_mapping_value(value), line_number = line_number, column = column }
+          table.insert(
+            spring_find_table[path][mapping_annotation],
+            { value = mapping_value, line_number = line_number, column = column, is_object = true }
+          )
+        end
+      else
+        -- local path, line_number, column, mapping_value = split_option_mapping(line)
+        -- if not spring_find_table[path] then
+        --   spring_find_table[path] = {}
+        -- end
+        --
+        -- if not spring_find_table[path][annotation] then
+        --   spring_find_table[path][annotation] = {}
+        -- end
+        --
+        -- table.insert(
+        --   spring_find_table[path][annotation],
+        --   { value = get_mapping_value(mapping_value), line_number = line_number, column = column }
+        -- )
+      end
     else
-      table.insert(
-        spring_find_table[path][annotation],
-        { value = get_mapping_value(value), line_number = line_number, column = column }
-      )
+      local path, line_number, column, value = H.split(line, ":")
+
+      create_find_table_if_not_exist(path, annotation)
+
+      if annotation == E.annotation.REQUEST_MAPPING then
+        spring_find_table[path][annotation] =
+          { value = get_mapping_value(value), line_number = line_number, column = column }
+      else
+        table.insert(
+          spring_find_table[path][annotation],
+          { value = get_mapping_value(value), line_number = line_number, column = column }
+        )
+      end
     end
   end
 end

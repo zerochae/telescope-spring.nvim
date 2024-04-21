@@ -12,6 +12,10 @@ M.trim = function(str)
   return str:gsub("^%s*(.-)%s*$", "%1")
 end
 
+M.find = function(str, substr)
+  return string.find(str, substr)
+end
+
 M.split = function(str, delimiter)
   local result = {}
   local from = 1
