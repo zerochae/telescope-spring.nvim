@@ -212,7 +212,7 @@ M.create_spring_find_table = function(annotation)
       local path, line_number, column, value = H.split(line, ":")
       create_find_table_if_not_exist(path, annotation)
       if annotation == E.annotation.REQUEST_MAPPING then
-        insert_to_find_request_table(path, annotation, value, line_number, column)
+        insert_to_find_request_table(path, annotation, get_mapping_value(value), line_number, column)
       else
         insert_to_find_table(path, annotation, get_mapping_value(value), line_number, column)
       end
