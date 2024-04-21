@@ -149,4 +149,13 @@ M.create_spring_find_table = function(annotation)
   end
 end
 
+M.set_cursor_on_entry = function(entry, bufnr, winid)
+  local lnum, lnend = entry.lnum - 1, (entry.lnend or entry.lnum) - 1
+  local middle_ln = math.floor(lnum + (lnend - lnum) / 2) + 1
+  pcall(vim.api.nvim_win_set_cursor, winid, { middle_ln, 0 })
+  vim.api.nvim_buf_call(bufnr, function()
+    vim.cmd "norm! zz"
+  end)
+end
+
 return M

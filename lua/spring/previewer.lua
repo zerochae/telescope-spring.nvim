@@ -16,18 +16,14 @@ return function(annotation)
       local path = spring_preview_table[endpoint].path
       local line_number = spring_preview_table[endpoint].line_number
       local column = spring_preview_table[endpoint].column
+      entry.path = path
       entry.lnum = line_number
       entry.col = column
       local bufnr = self.state.bufnr
 
       conf.buffer_previewer_maker(path, bufnr, {
         callback = function()
-          local lnum, lnend = entry.lnum - 1, (entry.lnend or entry.lnum) - 1
-          local middle_ln = math.floor(lnum + (lnend - lnum) / 2)
-          pcall(vim.api.nvim_win_set_cursor, self.state.winid, { middle_ln, 0 })
-          vim.api.nvim_buf_call(bufnr, function()
-            vim.cmd "norm! zz"
-          end)
+          U.set_cursor_on_entry(entry, bufnr, self.state.winid)
         end,
       })
     end,
