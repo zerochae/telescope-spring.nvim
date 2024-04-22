@@ -19,14 +19,14 @@ return function(annotation)
         if mapping_object[annotation] then
           local method = U.get_method(annotation)
           for _, mapping_item in ipairs(mapping_object[annotation]) do
-            local method_mapping_value = mapping_item.value
+            local method_mapping_value = mapping_item.value or ""
             local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
             table.insert(finder_results, endpoint)
           end
         end
       end
 
-      return finder_results
+      return U.check_duplicate(finder_results)
     end)(),
   }
 end

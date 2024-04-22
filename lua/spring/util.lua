@@ -6,21 +6,6 @@ local H = require "spring.helper"
 local spring_find_table = {}
 local spring_preview_table = {}
 
-local created_spring_find_table = {
-  [E.annotation.REQUEST_MAPPING] = false,
-  [E.annotation.GET_MAPPING] = false,
-  [E.annotation.POST_MAPPING] = false,
-  [E.annotation.PUT_MAPPING] = false,
-  [E.annotation.DELETE_MAPPING] = false,
-}
-
-local created_spring_preview_table = {
-  [E.annotation.GET_MAPPING] = false,
-  [E.annotation.POST_MAPPING] = false,
-  [E.annotation.PUT_MAPPING] = false,
-  [E.annotation.DELETE_MAPPING] = false,
-}
-
 M.get_annotation = function(method)
   local annotation = E.annotation[method .. "_MAPPING"]
   return annotation
@@ -72,14 +57,6 @@ local get_grep_cmd = function(annotation)
   end
 end
 
-local is_created_find_table = function(annotation)
-  return created_spring_find_table[annotation]
-end
-
-local is_created_preview_table = function(annotation)
-  return created_spring_preview_table[annotation]
-end
-
 M.get_request_mapping_value = function(path)
   if not spring_find_table[path] then
     return ""
@@ -89,7 +66,16 @@ M.get_request_mapping_value = function(path)
     return ""
   end
 
+  if not spring_find_table[path][E.annotation.REQUEST_MAPPING].value then
+    return ""
+  end
+
   return spring_find_table[path][E.annotation.REQUEST_MAPPING].value
+end
+
+M.set_spring_tables = function()
+  spring_find_table = {}
+  spring_preview_table = {}
 end
 
 M.get_spring_priview_table = function()
@@ -101,18 +87,12 @@ M.get_spring_find_table = function()
 end
 
 M.create_spring_preview_table = function(annotation)
-  if is_created_preview_table(annotation) then
-    return
-  end
-
-  created_spring_preview_table[annotation] = true
-
   for path, mapping_object in pairs(spring_find_table) do
     local request_mapping_value = M.get_request_mapping_value(path)
     if mapping_object[annotation] then
       local method = M.get_method(annotation)
       for _, mapping_item in ipairs(mapping_object[annotation]) do
-        local method_mapping_value = mapping_item.value
+        local method_mapping_value = mapping_item.value or ""
         local line_number = mapping_item.line_number
         local column = mapping_item.column
         local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
@@ -145,7 +125,7 @@ end
 local function split_request_mapping(mapping_string)
   local path, line_number, column = H.split(mapping_string, ":")
   local mapping_methods = mapping_string:match "method%s*=%s*(%b{})"
-  local mapping_method = mapping_string:match "method%s*=%s*([%w.]+)"
+  local mapping_method = mapping_string:match "method%s*=%s*([^%s()]+)"
   local mapping_value = mapping_string:match 'value%s*=%s*"([^"]+)"' or ""
   local mapping_method_list = {}
 
@@ -179,21 +159,19 @@ local create_find_table_if_not_exist = function(path, annotation)
   end
 end
 
-local insert_to_find_table = function(path, annotation, value, line_number, column)
-  table.insert(spring_find_table[path][annotation], { value = value, line_number = line_number, column = column })
+local insert_to_find_table = function(opts)
+  table.insert(
+    spring_find_table[opts.path][opts.annotation],
+    { value = opts.value, line_number = opts.line_number, column = opts.column }
+  )
 end
 
-local insert_to_find_request_table = function(path, annotation, value, line_number, column)
-  spring_find_table[path][annotation] = { value = value, line_number = line_number, column = column }
+local insert_to_find_request_table = function(opts)
+  spring_find_table[opts.path][opts.annotation] =
+    { value = opts.value, line_number = opts.line_number, column = opts.column }
 end
 
 M.create_spring_find_table = function(annotation)
-  if is_created_find_table(annotation) then
-    return
-  end
-
-  created_spring_find_table[annotation] = true
-
   local cmd = get_grep_cmd(annotation)
   local grep_results = H.run_cmd(cmd)
 
@@ -203,26 +181,56 @@ M.create_spring_find_table = function(annotation)
         local path, line_number, column, mapping_value, mapping_method = split_request_mapping(line)
         if mapping_method == nil then
           create_find_table_if_not_exist(path, E.annotation.REQUEST_MAPPING)
-          insert_to_find_request_table(path, annotation, mapping_value, line_number, column)
+          insert_to_find_request_table {
+            path = path,
+            annotation = annotation,
+            mapping = mapping_value,
+            line_number = line_number,
+            column = column,
+          }
         else
           for _, method in ipairs(mapping_method) do
             local mapping_annotation = M.get_annotation(method)
             create_find_table_if_not_exist(path, mapping_annotation)
-            insert_to_find_table(path, mapping_annotation, mapping_value, line_number, column)
+            insert_to_find_table {
+              path = path,
+              annotation = mapping_annotation,
+              value = mapping_value,
+              line_number = line_number,
+              column = column,
+            }
           end
         end
       else
         local path, line_number, column, mapping_value = split_object_mapping(line)
         create_find_table_if_not_exist(path, annotation)
-        insert_to_find_table(path, annotation, mapping_value, line_number, column)
+        insert_to_find_table {
+          path = path,
+          annotation = annotation,
+          value = mapping_value,
+          line_number = line_number,
+          column = column,
+        }
       end
     else
       local path, line_number, column, value = H.split(line, ":")
       create_find_table_if_not_exist(path, annotation)
       if annotation == E.annotation.REQUEST_MAPPING then
-        insert_to_find_request_table(path, annotation, get_mapping_value(value, path), line_number, column)
+        insert_to_find_request_table {
+          path = path,
+          annotation = annotation,
+          value = get_mapping_value(value, path),
+          line_number = line_number,
+          column = column,
+        }
       else
-        insert_to_find_table(path, annotation, get_mapping_value(value, path), line_number, column)
+        insert_to_find_table {
+          path = path,
+          annotation = annotation,
+          value = get_mapping_value(value, path),
+          line_number = line_number,
+          column = column,
+        }
       end
     end
   end
@@ -235,6 +243,20 @@ M.set_cursor_on_entry = function(entry, bufnr, winid)
   vim.api.nvim_buf_call(bufnr, function()
     vim.cmd "norm! zz"
   end)
+end
+
+M.check_duplicate = function(find_table)
+  local seen = {} -- 중복을 확인하기 위한 테이블 생성
+  local result = {} -- 중복이 제거된 값을 담을 새로운 테이블
+
+  for _, value in ipairs(find_table) do
+    if not seen[value] then
+      table.insert(result, value) -- 중복되지 않는 값만 새로운 테이블에 추가
+      seen[value] = true -- 해당 값이 등장했음을 표시
+    end
+  end
+
+  return result
 end
 
 return M

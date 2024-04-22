@@ -7,6 +7,7 @@ local U = require "spring.util"
 
 return function(opts, method)
   opts = opts or {}
+  U.set_spring_tables()
   local annotation = U.get_annotation(method)
   local finder = spring_finder(annotation)
   local previewer = spring_previewer(annotation)
