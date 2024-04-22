@@ -73,6 +73,22 @@ M.get_request_mapping_value = function(path)
   return spring_find_table[path][E.annotation.REQUEST_MAPPING].value
 end
 
+M.get_request_mapping_line_number = function(path)
+  if not spring_find_table[path] then
+    return nil
+  end
+
+  if not spring_find_table[path][E.annotation.REQUEST_MAPPING] then
+    return nil
+  end
+
+  if not spring_find_table[path][E.annotation.REQUEST_MAPPING].line_number then
+    return nil
+  end
+
+  return spring_find_table[path][E.annotation.REQUEST_MAPPING].line_number
+end
+
 M.set_spring_tables = function()
   spring_find_table = {}
   spring_preview_table = {}

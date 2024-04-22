@@ -16,6 +16,7 @@ return function(annotation)
 
       for path, mapping_object in pairs(spring_finder_table) do
         local request_mapping_value = U.get_request_mapping_value(path)
+        -- local request_mapping_line_number = U.get_request_mapping_line_number(path)
         if mapping_object[annotation] then
           local method = U.get_method(annotation)
           for _, mapping_item in ipairs(mapping_object[annotation]) do
