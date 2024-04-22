@@ -1,6 +1,6 @@
 # telescope-spring.nvim
 
-A Telescope picker to quickly api endpoint finder in project
+A Telescope picker to quickly api endpoint finder in spring(boot) project
 
 ## 🖥️ Demo
 
