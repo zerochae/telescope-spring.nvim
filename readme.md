@@ -1,5 +1,8 @@
 # telescope-spring.nvim
 
+>[!NOTE]
+> It hasn't been officially released yet. It's coming soon, so please wait.
+
 A Telescope picker to quickly api endpoint finder in spring(boot) project
 
 ## 🖥️ Demo
@@ -30,6 +33,7 @@ A Telescope picker to quickly api endpoint finder in spring(boot) project
 ```
 
 ## ⚡️ Requirements
+
 - [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 
 ## ⚙️ Configuration
