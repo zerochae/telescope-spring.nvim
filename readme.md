@@ -35,28 +35,3 @@ A Telescope picker to quickly api endpoint finder in spring(boot) project
 ## ⚡️ Requirements
 
 - [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
-
-## ⚙️ Configuration
-
-```lua
-{
-  prompt_title = " Endpoint",  -- common prompt title
-  preview_title = "  Preview", -- common preview title
-  get = {
-    prompt_title = "",  -- get prompt title
-    preview_title = "", -- get preview title
-  },
-  post = {
-    prompt_title = "",  -- post prompt title
-    preview_title = "", -- post preview title
-  },
-  put = {
-    prompt_title = "",  -- put prompt title
-    preview_title = "", -- put preview title
-  },
-  delete = {
-    prompt_title = "",  -- delete prompt title
-    preview_title = "", -- delete preview title
-  },
-}
-```
