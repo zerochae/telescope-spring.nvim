@@ -141,7 +141,7 @@ end
 local function split_request_mapping(mapping_string)
   local path, line_number, column = H.split(mapping_string, ":")
   local mapping_methods = mapping_string:match "method%s*=%s*(%b{})"
-  local mapping_method = mapping_string:match "method%s*=%s*([^%s()]+)"
+  local mapping_method = mapping_string:match "method%s*=%s*([%w%.]+)"
   local mapping_value = mapping_string:match 'value%s*=%s*"([^"]+)"' or ""
   local mapping_method_list = {}
 
