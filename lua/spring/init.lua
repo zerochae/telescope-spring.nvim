@@ -39,11 +39,21 @@ M.setup = function(opts)
     vim.notify("Warning: cache_ttl must be a number", vim.log.levels.WARN)
   end
   
-  if opts.ui and opts.ui.method_colors then
-    for method, color in pairs(opts.ui.method_colors) do
-      if type(color) ~= "string" then
-        vim.notify("Warning: method color for " .. method .. " must be a string", vim.log.levels.WARN)
+  if opts.ui then
+    if opts.ui.method_colors then
+      for method, color in pairs(opts.ui.method_colors) do
+        if type(color) ~= "string" then
+          vim.notify("Warning: method color for " .. method .. " must be a string", vim.log.levels.WARN)
+        end
       end
+    end
+    
+    if opts.ui.show_icons ~= nil and type(opts.ui.show_icons) ~= "boolean" then
+      vim.notify("Warning: show_icons must be a boolean", vim.log.levels.WARN)
+    end
+    
+    if opts.ui.show_method ~= nil and type(opts.ui.show_method) ~= "boolean" then
+      vim.notify("Warning: show_method must be a boolean", vim.log.levels.WARN)
     end
   end
 

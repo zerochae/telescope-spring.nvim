@@ -9,7 +9,8 @@ local M = {
   
   -- UI customization
   ui = {
-    show_icons = true,
+    show_icons = false,   -- Show method icons (📥 GET, 📤 POST, etc.)
+    show_method = true,   -- Show method text (GET, POST, PUT, DELETE)
     method_colors = {
       GET = "TelescopeResultsNumber",      -- Default: Green-ish
       POST = "TelescopeResultsConstant",   -- Default: Blue-ish  
@@ -17,10 +18,10 @@ local M = {
       DELETE = "TelescopeResultsSpecialChar", -- Default: Red-ish
     },
     method_icons = {
-      GET = "🟢",
-      POST = "🔵", 
-      PUT = "🟠",
-      DELETE = "🔴",
+      GET = "📥",    -- Recommended: meaningful icons
+      POST = "📤", 
+      PUT = "✏️",
+      DELETE = "🗑️",
     },
   },
   

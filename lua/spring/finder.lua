@@ -25,17 +25,39 @@ local get_method_icon = function(method)
   return icons[method] or "⚪"
 end
 
+local get_method_text = function(method)
+  local spring = require "spring"
+  local config = spring.get_config()
+  if not config.ui.show_method then
+    return ""
+  end
+  return method
+end
+
 return function(annotation)
   return finders.new_table {
     entry_maker = function(entry)
       local method = entry.method
       local path = entry.path
       local icon = get_method_icon(method)
+      local method_text = get_method_text(method)
       local method_color = get_method_color(method)
+      
+      -- Build display string based on settings
+      local parts = {}
+      if icon ~= "" then
+        table.insert(parts, icon)
+      end
+      if method_text ~= "" then
+        table.insert(parts, method_text)
+      end
+      table.insert(parts, path)
+      
+      local display_string = table.concat(parts, " ")
       
       return {
         value = entry.value,
-        display = icon .. " " .. method .. " " .. path,
+        display = display_string,
         ordinal = entry.value,
         method = method,
         path = path,
