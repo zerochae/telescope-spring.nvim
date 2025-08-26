@@ -1,7 +1,7 @@
 local M = {}
 
-local E = require "spring.enum"
-local H = require "spring.helper"
+local enums = require "spring.enum"
+local helper = require "spring.helper"
 
 local PATTERNS = {
   REQUEST_MAPPING_VALUE = '@(.-)%("%s*(/.-)"%)',
@@ -29,7 +29,7 @@ local function get_mapping_value(mapping, path)
     local escaped_variable = variable_value:gsub("([{}()%[%].*+?^$|\\])", "\\%1")
     -- Fix rg command syntax: search for "variable_name = " pattern in the file
     local cmd = "rg '" .. escaped_variable .. "\\s*=' " .. path
-    local grep_results = H.run_cmd(cmd)
+    local grep_results = helper.run_cmd(cmd)
     if grep_results then
       variable_value = grep_results:match(PATTERNS.VARIABLE_ASSIGNMENT)
       return variable_value or ""
@@ -40,7 +40,7 @@ local function get_mapping_value(mapping, path)
 end
 
 M.split_request_mapping = function(mapping_string)
-  local path, line_number, column = H.split(mapping_string, ":")
+  local path, line_number, column = helper.split(mapping_string, ":")
   local mapping_methods = mapping_string:match(PATTERNS.REQUEST_MAPPING_METHODS)
   local mapping_method = mapping_string:match(PATTERNS.REQUEST_MAPPING_METHOD)
   local mapping_value = mapping_string:match(PATTERNS.MAPPING_VALUE) or ""
@@ -60,7 +60,7 @@ M.split_request_mapping = function(mapping_string)
 end
 
 M.split_object_mapping = function(mapping_string)
-  local path, line_number, column = H.split(mapping_string, ":")
+  local path, line_number, column = helper.split(mapping_string, ":")
   local mapping_value = mapping_string:match(PATTERNS.MAPPING_VALUE) or ""
   return path, line_number, column, mapping_value
 end
@@ -68,21 +68,21 @@ end
 M.get_mapping_value = get_mapping_value
 
 M.is_mapping_has_option = function(mapping)
-  return H.find(mapping, "method =") ~= nil or H.find(mapping, "value =") ~= nil
+  return helper.find(mapping, "method =") ~= nil or helper.find(mapping, "value =") ~= nil
 end
 
 M.is_request_mapping = function(mapping)
-  return H.find(mapping, E.annotation.REQUEST_MAPPING) ~= nil
+  return helper.find(mapping, enums.annotation.REQUEST_MAPPING) ~= nil
 end
 
 M.get_grep_cmd = function(annotation)
   local commands = {
-    [E.annotation.REQUEST_MAPPING] = "rg '@RequestMapping(([^)]*?))' --multiline --type java --line-number --trim --vimgrep",
-    [E.annotation.GET_MAPPING] = "rg '@GetMapping' --multiline --type java --line-number --trim --vimgrep",
-    [E.annotation.POST_MAPPING] = "rg '@PostMapping' --multiline --type java --line-number --trim --vimgrep",
-    [E.annotation.PUT_MAPPING] = "rg '@PutMapping' --multiline --type java --line-number --trim --vimgrep",
-    [E.annotation.DELETE_MAPPING] = "rg '@DeleteMapping' --multiline --type java --line-number --trim --vimgrep",
-    [E.annotation.PATCH_MAPPING] = "rg '@PatchMapping' --multiline --type java --line-number --trim --vimgrep",
+    [enums.annotation.REQUEST_MAPPING] = "rg '@RequestMapping(([^)]*?))' --multiline --type java --line-number --trim --vimgrep",
+    [enums.annotation.GET_MAPPING] = "rg '@GetMapping' --multiline --type java --line-number --trim --vimgrep",
+    [enums.annotation.POST_MAPPING] = "rg '@PostMapping' --multiline --type java --line-number --trim --vimgrep",
+    [enums.annotation.PUT_MAPPING] = "rg '@PutMapping' --multiline --type java --line-number --trim --vimgrep",
+    [enums.annotation.DELETE_MAPPING] = "rg '@DeleteMapping' --multiline --type java --line-number --trim --vimgrep",
+    [enums.annotation.PATCH_MAPPING] = "rg '@PatchMapping' --multiline --type java --line-number --trim --vimgrep",
   }
 
   local cmd = commands[annotation]

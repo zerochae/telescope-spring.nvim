@@ -3,12 +3,12 @@ local spring_finder = require "spring.finder"
 local spring_previewer = require "spring.previewer"
 local spring_actions = require "spring.actions"
 local conf = require("telescope.config").values
-local U = require "spring.util"
+local util = require "spring.util"
 
 return function(opts, method)
   opts = opts or {}
   -- U.set_spring_tables() -- Removed: This was clearing cache on every call
-  local annotation = U.get_annotation(method)
+  local annotation = util.get_annotation(method)
   local finder = spring_finder(annotation)
   local previewer = spring_previewer(annotation)
   local sorter = conf.generic_sorter()

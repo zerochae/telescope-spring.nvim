@@ -1,6 +1,6 @@
 local actions = require "telescope.actions"
 local action_state = require "telescope.actions.state"
-local U = require "spring.util"
+local util = require "spring.util"
 
 return function(prompt_bufnr)
   actions.select_default:replace(function()
@@ -12,7 +12,7 @@ return function(prompt_bufnr)
     end
 
     -- Get the actual file path from preview table
-    local spring_preview_table = U.get_spring_preview_table()
+    local spring_preview_table = util.get_spring_preview_table()
     local endpoint = entry.value
 
     if not spring_preview_table[endpoint] then
@@ -34,7 +34,7 @@ return function(prompt_bufnr)
         lnum = spring_preview_table[endpoint].line_number,
         col = spring_preview_table[endpoint].column,
       }
-      U.set_cursor_on_entry(cursor_entry, bufnr, 0)
+      util.set_cursor_on_entry(cursor_entry, bufnr, 0)
     end)
   end)
   return true

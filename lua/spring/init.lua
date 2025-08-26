@@ -2,7 +2,7 @@ local M = {}
 
 local default_config = require "spring.config"
 local spring_picker = require "spring.picker"
-local E = require "spring.enum"
+local enums = require "spring.enum"
 
 -- Global config that will be used throughout the plugin
 M.config = vim.deepcopy(default_config)
@@ -13,23 +13,23 @@ M.get_config = function()
 end
 
 -- M.pick_all_mapping = function(opts)
---   spring_picker(opts, E.methods.ALL)
+--   spring_picker(opts, enums.methods.ALL)
 -- end
 
 M.pick_get_mapping = function(opts)
-  spring_picker(opts, E.methods.GET)
+  spring_picker(opts, enums.methods.GET)
 end
 M.pick_post_mapping = function(opts)
-  spring_picker(opts, E.methods.POST)
+  spring_picker(opts, enums.methods.POST)
 end
 M.pick_put_mapping = function(opts)
-  spring_picker(opts, E.methods.PUT)
+  spring_picker(opts, enums.methods.PUT)
 end
 M.pick_delete_mapping = function(opts)
-  spring_picker(opts, E.methods.DELETE)
+  spring_picker(opts, enums.methods.DELETE)
 end
 M.pick_patch_mapping = function(opts)
-  spring_picker(opts, E.methods.PATCH)
+  spring_picker(opts, enums.methods.PATCH)
 end
 
 M.setup = function(opts)

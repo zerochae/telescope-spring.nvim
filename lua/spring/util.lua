@@ -1,12 +1,12 @@
 local M = {}
 
-local E = require "spring.enum"
-local H = require "spring.helper"
+local enums = require "spring.enum"
+local helper = require "spring.helper"
 local parser = require "spring.parser"
 local cache = require "spring.cache"
 
 M.get_annotation = function(method)
-  local annotation = E.annotation[method .. "_MAPPING"]
+  local annotation = enums.annotation[method .. "_MAPPING"]
   return annotation
 end
 
@@ -21,15 +21,15 @@ M.get_request_mapping_value = function(path)
     return ""
   end
 
-  if not find_table[path][E.annotation.REQUEST_MAPPING] then
+  if not find_table[path][enums.annotation.REQUEST_MAPPING] then
     return ""
   end
 
-  if not find_table[path][E.annotation.REQUEST_MAPPING].value then
+  if not find_table[path][enums.annotation.REQUEST_MAPPING].value then
     return ""
   end
 
-  return find_table[path][E.annotation.REQUEST_MAPPING].value
+  return find_table[path][enums.annotation.REQUEST_MAPPING].value
 end
 
 M.get_request_mapping_line_number = function(path)
@@ -38,15 +38,15 @@ M.get_request_mapping_line_number = function(path)
     return nil
   end
 
-  if not find_table[path][E.annotation.REQUEST_MAPPING] then
+  if not find_table[path][enums.annotation.REQUEST_MAPPING] then
     return nil
   end
 
-  if not find_table[path][E.annotation.REQUEST_MAPPING].line_number then
+  if not find_table[path][enums.annotation.REQUEST_MAPPING].line_number then
     return nil
   end
 
-  return find_table[path][E.annotation.REQUEST_MAPPING].line_number
+  return find_table[path][enums.annotation.REQUEST_MAPPING].line_number
 end
 
 M.set_spring_tables = function()
@@ -90,7 +90,7 @@ M.create_spring_find_table = function(annotation)
     return
   end
 
-  local grep_results = H.run_cmd(cmd)
+  local grep_results = helper.run_cmd(cmd)
   if not grep_results or grep_results == "" then
     -- Don't notify for empty results, it's normal
     return
@@ -101,10 +101,10 @@ M.create_spring_find_table = function(annotation)
       if parser.is_request_mapping(line) then
         local path, line_number, column, mapping_value, mapping_method = parser.split_request_mapping(line)
         if mapping_method == nil then
-          cache.create_find_table_entry(path, E.annotation.REQUEST_MAPPING)
+          cache.create_find_table_entry(path, enums.annotation.REQUEST_MAPPING)
           cache.insert_to_find_request_table {
             path = path,
-            annotation = E.annotation.REQUEST_MAPPING,
+            annotation = enums.annotation.REQUEST_MAPPING,
             value = mapping_value,
             line_number = line_number,
             column = column,
@@ -134,9 +134,9 @@ M.create_spring_find_table = function(annotation)
         }
       end
     else
-      local path, line_number, column, value = H.split(line, ":")
+      local path, line_number, column, value = helper.split(line, ":")
       cache.create_find_table_entry(path, annotation)
-      if annotation == E.annotation.REQUEST_MAPPING then
+      if annotation == enums.annotation.REQUEST_MAPPING then
         cache.insert_to_find_request_table {
           path = path,
           annotation = annotation,

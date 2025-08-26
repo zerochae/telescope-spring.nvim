@@ -1,16 +1,16 @@
 local previewers = require "telescope.previewers"
 local conf = require("telescope.config").values
-local U = require "spring.util"
+local util = require "spring.util"
 
 local create_preview_table = function(annotation)
-  U.create_spring_preview_table(annotation)
+  util.create_spring_preview_table(annotation)
 end
 
 return function(annotation)
   return previewers.new_buffer_previewer {
     define_preview = function(self, entry)
       create_preview_table(annotation)
-      local spring_preview_table = U.get_spring_preview_table()
+      local spring_preview_table = util.get_spring_preview_table()
       local endpoint = entry.value
 
       -- Check if preview table entry exists
@@ -30,7 +30,7 @@ return function(annotation)
       conf.buffer_previewer_maker(path, bufnr, {
         callback = function()
           vim.schedule(function()
-            U.set_cursor_on_entry(entry, bufnr, self.state.winid)
+            util.set_cursor_on_entry(entry, bufnr, self.state.winid)
 
             -- Add highlighting for the annotation line
             local ns_id = vim.api.nvim_create_namespace "spring_annotation_highlight"
