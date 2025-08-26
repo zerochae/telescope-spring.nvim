@@ -27,19 +27,17 @@ M.get_preview_table = function()
 end
 
 M.is_cache_valid = function(annotation)
-  local cached_time = cache_timestamp[annotation]
-
-  if not cached_time then
-    return false
-  end
-
   local cache_config = get_cache_config()
+  local cached_time = cache_timestamp[annotation]
   
   if cache_config.mode == "session" then
-    -- Cache is valid for the entire nvim session
-    return true
+    -- Cache is valid for the entire nvim session if it exists
+    return cached_time ~= nil
   else
     -- Time-based cache validation
+    if not cached_time then
+      return false
+    end
     local current_time = vim.fn.localtime() * 1000
     return (current_time - cached_time) < cache_config.ttl
   end
