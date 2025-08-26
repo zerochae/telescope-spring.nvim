@@ -66,32 +66,32 @@ M.setup = function(opts)
   -- end, {})
 
   create_user_command("SpringGetMapping", function()
-    M.pick_get_mapping(opts)
+    M.pick_get_mapping(M.config.get or {})
   end, {})
 
   create_user_command("SpringPostMapping", function()
-    M.pick_post_mapping(opts)
+    M.pick_post_mapping(M.config.post or {})
   end, {})
 
   create_user_command("SpringPutMapping", function()
-    M.pick_put_mapping(opts)
+    M.pick_put_mapping(M.config.put or {})
   end, {})
 
   create_user_command("SpringDeleteMapping", function()
-    M.pick_delete_mapping(opts)
+    M.pick_delete_mapping(M.config.delete or {})
   end, {})
 
   create_user_command("SpringPatchMapping", function()
-    M.pick_patch_mapping(opts)
+    M.pick_patch_mapping(M.config.patch or {})
   end, {})
 end
 
--- Auto-setup with lazy.nvim opts or default config  
+-- Auto-setup compatibility for lazy.nvim
+-- lazy.nvim will call setup(opts) automatically when opts is provided
+-- This creates a fallback setup for other package managers
 vim.defer_fn(function()
   if not vim.g.spring_setup_called then
-    -- lazy.nvim automatically calls setup when opts is specified
-    -- This is a fallback for other package managers
-    M.setup({})
+    M.setup()
     vim.g.spring_setup_called = true
   end
 end, 100)
