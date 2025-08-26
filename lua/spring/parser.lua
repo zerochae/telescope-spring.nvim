@@ -82,6 +82,7 @@ M.get_grep_cmd = function(annotation)
     [E.annotation.POST_MAPPING] = "rg '@PostMapping' --multiline --type java --line-number --trim --vimgrep",
     [E.annotation.PUT_MAPPING] = "rg '@PutMapping' --multiline --type java --line-number --trim --vimgrep",
     [E.annotation.DELETE_MAPPING] = "rg '@DeleteMapping' --multiline --type java --line-number --trim --vimgrep",
+    [E.annotation.PATCH_MAPPING] = "rg '@PatchMapping' --multiline --type java --line-number --trim --vimgrep",
   }
   
   local cmd = commands[annotation]

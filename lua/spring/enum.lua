@@ -6,6 +6,7 @@ M.default_config = {
   post_prompt_title = "post api finder",
   put_prompt_title = "put api finder",
   delete_prompt_title = "delete api finder",
+  patch_prompt_title = "patch api finder",
 }
 
 M.methods = {
@@ -14,6 +15,7 @@ M.methods = {
   POST = "POST",
   PUT = "PUT",
   DELETE = "DELETE",
+  PATCH = "PATCH",
 }
 
 M.annotation = {
@@ -22,6 +24,7 @@ M.annotation = {
   POST_MAPPING = "@PostMapping",
   PUT_MAPPING = "@PutMapping",
   DELETE_MAPPING = "@DeleteMapping",
+  PATCH_MAPPING = "@PatchMapping",
 }
 
 M.cmd = {

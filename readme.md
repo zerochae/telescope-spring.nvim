@@ -18,6 +18,7 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 :SpringPostMapping    " Find all POST endpoints  
 :SpringPutMapping     " Find all PUT endpoints
 :SpringDeleteMapping  " Find all DELETE endpoints
+:SpringPatchMapping   " Find all PATCH endpoints
 ```
 
 ## 📦 Installation
@@ -43,6 +44,7 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
           POST   = "📤", 
           PUT    = "✏️",
           DELETE = "🗑️",
+          PATCH  = "🔧",
         },
         
         -- Customize colors
@@ -51,6 +53,7 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
           POST   = "DiagnosticInfo",    -- Blue
           PUT    = "DiagnosticWarn",    -- Yellow
           DELETE = "DiagnosticError",   -- Red
+          PATCH  = "DiagnosticHint",    -- Purple
         },
       },
     })
@@ -92,6 +95,7 @@ require("spring").setup({
       POST = "TelescopeResultsConstant", 
       PUT = "TelescopeResultsKeyword",
       DELETE = "TelescopeResultsSpecialChar",
+      PATCH = "TelescopeResultsFunction",
     },
     
     method_icons = {
@@ -99,6 +103,7 @@ require("spring").setup({
       POST = "📤",
       PUT = "✏️", 
       DELETE = "🗑️",
+      PATCH = "🔧",
     },
   },
 })
@@ -149,6 +154,7 @@ method_icons = {
   POST   = "📤",  -- Outbox (sending data)
   PUT    = "✏️",   -- Pencil (editing)
   DELETE = "🗑️",  -- Trash (deleting)
+  PATCH  = "🔧",  -- Wrench (fixing/patching)
 }
 
 -- Theme 2: Geometric
@@ -157,6 +163,7 @@ method_icons = {
   POST   = "▲",   -- Up arrow
   PUT    = "◆",   -- Diamond
   DELETE = "✖",   -- X mark
+  PATCH  = "◉",   -- Circle with dot
 }
 
 -- Theme 3: Developer Friendly (requires Nerd Fonts)
@@ -165,6 +172,7 @@ method_icons = {
   POST   = "",
   PUT    = "",
   DELETE = "",
+  PATCH  = "",
 }
 ```
 

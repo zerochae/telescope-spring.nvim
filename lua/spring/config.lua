@@ -16,12 +16,14 @@ local M = {
       POST = "TelescopeResultsConstant",   -- Default: Blue-ish  
       PUT = "TelescopeResultsKeyword",     -- Default: Orange-ish
       DELETE = "TelescopeResultsSpecialChar", -- Default: Red-ish
+      PATCH = "TelescopeResultsFunction",  -- Default: Purple-ish
     },
     method_icons = {
       GET = "📥",    -- Recommended: meaningful icons
       POST = "📤", 
       PUT = "✏️",
       DELETE = "🗑️",
+      PATCH = "🔧",  -- Wrench (fixing/patching)
     },
   },
   
@@ -36,6 +38,9 @@ local M = {
   },
   delete = {
     prompt_title = E.default_config.delete_prompt_title,
+  },
+  patch = {
+    prompt_title = E.default_config.patch_prompt_title,
   },
 }
 

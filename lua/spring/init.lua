@@ -29,6 +29,9 @@ end
 M.pick_delete_mapping = function(opts)
   spring_picker(opts, E.methods.DELETE)
 end
+M.pick_patch_mapping = function(opts)
+  spring_picker(opts, E.methods.PATCH)
+end
 
 M.setup = function(opts)
   opts = opts or {}
@@ -75,6 +78,10 @@ M.setup = function(opts)
 
   create_user_command("SpringDeleteMapping", function()
     M.pick_delete_mapping(opts)
+  end, {})
+
+  create_user_command("SpringPatchMapping", function()
+    M.pick_patch_mapping(opts)
   end, {})
 end
 
