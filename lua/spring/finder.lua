@@ -26,29 +26,21 @@ local get_method_icon = function(method)
 end
 
 return function(annotation)
-  local displayer = entry_display.create {
-    separator = " ",
-    items = {
-      { width = 2 },   -- icon
-      { width = 6 },   -- method
-      { remaining = true }, -- path
-    },
-  }
-
-  local make_display = function(entry)
-    local method = entry.method
-    local path = entry.path
-    local icon = get_method_icon(method)
-    local method_color = get_method_color(method)
-    
-    return displayer {
-      icon,
-      { method, method_color },
-      path,
-    }
-  end
-
   return finders.new_table {
+    entry_maker = function(entry)
+      local method = entry.method
+      local path = entry.path
+      local icon = get_method_icon(method)
+      local method_color = get_method_color(method)
+      
+      return {
+        value = entry.value,
+        display = icon .. " " .. method .. " " .. path,
+        ordinal = entry.value,
+        method = method,
+        path = path,
+      }
+    end,
     results = (function()
       create_find_table(annotation)
       local spring_finder_table = U.get_spring_find_table()
@@ -61,16 +53,11 @@ return function(annotation)
           for _, mapping_item in ipairs(mapping_object[annotation]) do
             local method_mapping_value = mapping_item.value or ""
             local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-            local entry = {
+            table.insert(finder_results, {
               value = endpoint,
-              ordinal = endpoint,
               method = method,
               path = request_mapping_value .. method_mapping_value,
-            }
-            entry.display = function(e)
-              return make_display(e)
-            end
-            table.insert(finder_results, entry)
+            })
           end
         end
       end
