@@ -13,12 +13,35 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 
 ## 🚀 Usage
 
+### Simple Commands (Recommended)
+
+```vim
+:Spring Get      " Find all GET endpoints
+:Spring Post     " Find all POST endpoints  
+:Spring Put      " Find all PUT endpoints
+:Spring Delete   " Find all DELETE endpoints
+:Spring Patch    " Find all PATCH endpoints
+```
+
+### Alternative Commands
+
 ```vim
 :SpringGetMapping     " Find all GET endpoints
 :SpringPostMapping    " Find all POST endpoints  
 :SpringPutMapping     " Find all PUT endpoints
 :SpringDeleteMapping  " Find all DELETE endpoints
 :SpringPatchMapping   " Find all PATCH endpoints
+```
+
+### Telescope Extension
+
+```vim
+:Telescope spring        " Default picker
+:Telescope spring get    " GET endpoints
+:Telescope spring post   " POST endpoints
+:Telescope spring put    " PUT endpoints
+:Telescope spring delete " DELETE endpoints
+:Telescope spring patch  " PATCH endpoints
 ```
 
 ## 📦 Installation
@@ -29,6 +52,14 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 {
   "zerochae/telescope-spring.nvim",
   dependencies = { "nvim-telescope/telescope.nvim" },
+  cmd = {
+    "Spring",
+    "SpringGetMapping",
+    "SpringPostMapping",
+    "SpringPutMapping", 
+    "SpringDeleteMapping",
+    "SpringPatchMapping",
+  },
   config = function()
     require("spring").setup({
       -- Optional: customize settings
@@ -58,6 +89,29 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
       },
     })
   end,
+}
+```
+
+### Minimal Setup with opts
+
+```lua
+{
+  "zerochae/telescope-spring.nvim",
+  dependencies = { "nvim-telescope/telescope.nvim" },
+  cmd = {
+    "Spring",
+    "SpringGetMapping",
+    "SpringPostMapping",
+    "SpringPutMapping", 
+    "SpringDeleteMapping",
+    "SpringPatchMapping",
+  },
+  opts = {
+    ui = {
+      show_icons = true,
+      show_method = true,
+    },
+  },
 }
 ```
 
