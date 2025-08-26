@@ -1,28 +1,32 @@
-local spring = require "spring"
-
 -- Individual commands (existing)
 vim.api.nvim_create_user_command("SpringGetMapping", function()
+  local spring = require "spring"
   spring.pick_get_mapping(spring.get_config().get or {})
 end, {})
 
 vim.api.nvim_create_user_command("SpringPostMapping", function()
+  local spring = require "spring"
   spring.pick_post_mapping(spring.get_config().post or {})
 end, {})
 
 vim.api.nvim_create_user_command("SpringPutMapping", function()
+  local spring = require "spring"
   spring.pick_put_mapping(spring.get_config().put or {})
 end, {})
 
 vim.api.nvim_create_user_command("SpringDeleteMapping", function()
+  local spring = require "spring"
   spring.pick_delete_mapping(spring.get_config().delete or {})
 end, {})
 
 vim.api.nvim_create_user_command("SpringPatchMapping", function()
+  local spring = require "spring"
   spring.pick_patch_mapping(spring.get_config().patch or {})
 end, {})
 
 -- Main Spring command with subcommands
 vim.api.nvim_create_user_command("Spring", function(opts)
+  local spring = require "spring"
   local subcommand = opts.fargs[1]
   if not subcommand then
     vim.notify("Usage: Spring {Get|Post|Put|Delete|Patch}", vim.log.levels.WARN)
@@ -51,4 +55,5 @@ end, {
     return { "Get", "Post", "Put", "Delete", "Patch" }
   end,
 })
+
 
