@@ -10,7 +10,7 @@ return function(annotation)
   return previewers.new_buffer_previewer {
     define_preview = function(self, entry)
       create_preview_table(annotation)
-      local spring_preview_table = U.get_spring_priview_table()
+      local spring_preview_table = U.get_spring_preview_table()
       local endpoint = entry[1]
 
       local path = spring_preview_table[endpoint].path

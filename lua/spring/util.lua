@@ -2,9 +2,8 @@ local M = {}
 
 local E = require "spring.enum"
 local H = require "spring.helper"
-
-local spring_find_table = {}
-local spring_preview_table = {}
+local parser = require "spring.parser"
+local cache = require "spring.cache"
 
 M.get_annotation = function(method)
   local annotation = E.annotation[method .. "_MAPPING"]
@@ -16,29 +15,6 @@ M.get_method = function(annotation)
   return method
 end
 
-local get_mapping_value = function(mapping, path)
-  if not mapping then
-    return ""
-  end
-
-  local _, value = mapping:match '@(.-)%("%s*(/.-)"%)'
-
-  if value then
-    return value
-  end
-
-  local variable_value = mapping:match "%((.-)%)"
-
-  if variable_value then
-    local cmd = "rg" .. " " .. variable_value .. " " .. "=" .. " " .. path
-    local grep_results = H.run_cmd(cmd)
-    variable_value = grep_results:match '"(%/.-)"'
-
-    return variable_value
-  end
-
-  return ""
-end
 
 local get_grep_cmd = function(annotation)
   if annotation == E.annotation.REQUEST_MAPPING then
@@ -58,52 +34,54 @@ local get_grep_cmd = function(annotation)
 end
 
 M.get_request_mapping_value = function(path)
-  if not spring_find_table[path] then
+  local find_table = cache.get_find_table()
+  if not find_table[path] then
     return ""
   end
 
-  if not spring_find_table[path][E.annotation.REQUEST_MAPPING] then
+  if not find_table[path][E.annotation.REQUEST_MAPPING] then
     return ""
   end
 
-  if not spring_find_table[path][E.annotation.REQUEST_MAPPING].value then
+  if not find_table[path][E.annotation.REQUEST_MAPPING].value then
     return ""
   end
 
-  return spring_find_table[path][E.annotation.REQUEST_MAPPING].value
+  return find_table[path][E.annotation.REQUEST_MAPPING].value
 end
 
 M.get_request_mapping_line_number = function(path)
-  if not spring_find_table[path] then
+  local find_table = cache.get_find_table()
+  if not find_table[path] then
     return nil
   end
 
-  if not spring_find_table[path][E.annotation.REQUEST_MAPPING] then
+  if not find_table[path][E.annotation.REQUEST_MAPPING] then
     return nil
   end
 
-  if not spring_find_table[path][E.annotation.REQUEST_MAPPING].line_number then
+  if not find_table[path][E.annotation.REQUEST_MAPPING].line_number then
     return nil
   end
 
-  return spring_find_table[path][E.annotation.REQUEST_MAPPING].line_number
+  return find_table[path][E.annotation.REQUEST_MAPPING].line_number
 end
 
 M.set_spring_tables = function()
-  spring_find_table = {}
-  spring_preview_table = {}
+  cache.clear_tables()
 end
 
-M.get_spring_priview_table = function()
-  return spring_preview_table
+M.get_spring_preview_table = function()
+  return cache.get_preview_table()
 end
 
 M.get_spring_find_table = function()
-  return spring_find_table
+  return cache.get_find_table()
 end
 
 M.create_spring_preview_table = function(annotation)
-  for path, mapping_object in pairs(spring_find_table) do
+  local find_table = cache.get_find_table()
+  for path, mapping_object in pairs(find_table) do
     local request_mapping_value = M.get_request_mapping_value(path)
     if mapping_object[annotation] then
       local method = M.get_method(annotation)
@@ -112,11 +90,7 @@ M.create_spring_preview_table = function(annotation)
         local line_number = mapping_item.line_number
         local column = mapping_item.column
         local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-        spring_preview_table[endpoint] = {
-          path = path,
-          line_number = line_number,
-          column = column,
-        }
+        cache.create_preview_entry(endpoint, path, line_number, column)
       end
     end
   end
@@ -188,27 +162,41 @@ local insert_to_find_request_table = function(opts)
 end
 
 M.create_spring_find_table = function(annotation)
-  local cmd = get_grep_cmd(annotation)
+  -- Check cache first
+  if cache.should_use_cache(annotation) then
+    return
+  end
+
+  local success, cmd = pcall(parser.get_grep_cmd, annotation)
+  if not success then
+    vim.notify("Error: " .. cmd, vim.log.levels.ERROR)
+    return
+  end
+
   local grep_results = H.run_cmd(cmd)
+  if not grep_results or grep_results == "" then
+    vim.notify("No results found for annotation: " .. annotation, vim.log.levels.WARN)
+    return
+  end
 
   for line in tostring(grep_results):gmatch "[^\n]+" do
-    if is_mapping_has_option(line) then
-      if is_request_mapping(line) then
-        local path, line_number, column, mapping_value, mapping_method = split_request_mapping(line)
+    if parser.is_mapping_has_option(line) then
+      if parser.is_request_mapping(line) then
+        local path, line_number, column, mapping_value, mapping_method = parser.split_request_mapping(line)
         if mapping_method == nil then
-          create_find_table_if_not_exist(path, E.annotation.REQUEST_MAPPING)
-          insert_to_find_request_table {
+          cache.create_find_table_entry(path, E.annotation.REQUEST_MAPPING)
+          cache.insert_to_find_request_table {
             path = path,
-            annotation = annotation,
-            mapping = mapping_value,
+            annotation = E.annotation.REQUEST_MAPPING,
+            value = mapping_value,
             line_number = line_number,
             column = column,
           }
         else
           for _, method in ipairs(mapping_method) do
             local mapping_annotation = M.get_annotation(method)
-            create_find_table_if_not_exist(path, mapping_annotation)
-            insert_to_find_table {
+            cache.create_find_table_entry(path, mapping_annotation)
+            cache.insert_to_find_table {
               path = path,
               annotation = mapping_annotation,
               value = mapping_value,
@@ -218,9 +206,9 @@ M.create_spring_find_table = function(annotation)
           end
         end
       else
-        local path, line_number, column, mapping_value = split_object_mapping(line)
-        create_find_table_if_not_exist(path, annotation)
-        insert_to_find_table {
+        local path, line_number, column, mapping_value = parser.split_object_mapping(line)
+        cache.create_find_table_entry(path, annotation)
+        cache.insert_to_find_table {
           path = path,
           annotation = annotation,
           value = mapping_value,
@@ -230,26 +218,29 @@ M.create_spring_find_table = function(annotation)
       end
     else
       local path, line_number, column, value = H.split(line, ":")
-      create_find_table_if_not_exist(path, annotation)
+      cache.create_find_table_entry(path, annotation)
       if annotation == E.annotation.REQUEST_MAPPING then
-        insert_to_find_request_table {
+        cache.insert_to_find_request_table {
           path = path,
           annotation = annotation,
-          value = get_mapping_value(value, path),
+          value = parser.get_mapping_value(value, path),
           line_number = line_number,
           column = column,
         }
       else
-        insert_to_find_table {
+        cache.insert_to_find_table {
           path = path,
           annotation = annotation,
-          value = get_mapping_value(value, path),
+          value = parser.get_mapping_value(value, path),
           line_number = line_number,
           column = column,
         }
       end
     end
   end
+  
+  -- Update cache timestamp
+  cache.update_cache_timestamp(annotation)
 end
 
 M.set_cursor_on_entry = function(entry, bufnr, winid)

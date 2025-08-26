@@ -25,6 +25,11 @@ end
 M.setup = function(opts)
   opts = opts or {}
   config = vim.tbl_deep_extend("force", {}, config, opts)
+  
+  -- Validate configuration
+  if opts.cache_ttl and type(opts.cache_ttl) ~= "number" then
+    vim.notify("Warning: cache_ttl must be a number", vim.log.levels.WARN)
+  end
 
   -- create_user_command("SpringAllMapping", function()
   --   M.pick_all_mapping(opts)

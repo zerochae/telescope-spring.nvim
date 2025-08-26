@@ -32,6 +32,13 @@ end
 
 M.run_cmd = function(cmd)
   local output = vim.fn.system(cmd)
+  local exit_code = vim.v.shell_error
+  
+  if exit_code ~= 0 then
+    vim.notify("Command failed: " .. cmd .. " (exit code: " .. exit_code .. ")", vim.log.levels.ERROR)
+    return nil
+  end
+  
   return output
 end
 
