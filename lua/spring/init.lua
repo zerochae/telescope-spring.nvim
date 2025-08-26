@@ -86,14 +86,4 @@ M.setup = function(opts)
   end, {})
 end
 
--- Auto-setup compatibility for lazy.nvim
--- lazy.nvim will call setup(opts) automatically when opts is provided
--- This creates a fallback setup for other package managers
-vim.defer_fn(function()
-  if not vim.g.spring_setup_called then
-    M.setup()
-    vim.g.spring_setup_called = true
-  end
-end, 100)
-
 return M
