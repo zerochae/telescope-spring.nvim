@@ -61,29 +61,6 @@ M.setup = function(opts)
     end
   end
 
-  -- create_user_command("SpringAllMapping", function()
-  --   M.pick_all_mapping(opts)
-  -- end, {})
-
-  create_user_command("SpringGetMapping", function()
-    M.pick_get_mapping(M.config.get or {})
-  end, {})
-
-  create_user_command("SpringPostMapping", function()
-    M.pick_post_mapping(M.config.post or {})
-  end, {})
-
-  create_user_command("SpringPutMapping", function()
-    M.pick_put_mapping(M.config.put or {})
-  end, {})
-
-  create_user_command("SpringDeleteMapping", function()
-    M.pick_delete_mapping(M.config.delete or {})
-  end, {})
-
-  create_user_command("SpringPatchMapping", function()
-    M.pick_patch_mapping(M.config.patch or {})
-  end, {})
 end
 
 return M
