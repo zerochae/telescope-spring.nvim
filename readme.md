@@ -10,6 +10,7 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 - 🔗 **Path Variable Support**: Handles complex path variables and RequestMapping patterns
 - 📍 **Precise Navigation**: Jump directly to the exact line with annotation highlighting
 - 🌈 **Syntax Highlighting**: Preview window with Java syntax highlighting
+- 🔧 **Easy Setup**: Just call `require("spring").setup()` to get started
 
 ## 🚀 Usage
 
@@ -45,6 +46,8 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 ```
 
 ## 📦 Installation
+
+> **⚠️ Important**: You must call `require("spring").setup()` in a `config` function for the plugin to work properly. The `opts` table alone is not sufficient.
 
 ### lazy.nvim
 
@@ -92,7 +95,7 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 }
 ```
 
-### Minimal Setup with opts
+### lazy.nvim
 
 ```lua
 {
@@ -106,12 +109,14 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
     "SpringDeleteMapping",
     "SpringPatchMapping",
   },
-  opts = {
-    ui = {
-      show_icons = true,
-      show_method = true,
-    },
-  },
+  config = function()
+    require("spring").setup({
+      ui = {
+        show_icons = true,
+        show_method = true,
+      },
+    })
+  end,
 }
 ```
 
@@ -122,7 +127,7 @@ use {
   "zerochae/telescope-spring.nvim",
   requires = { "nvim-telescope/telescope.nvim" },
   config = function()
-    require("spring").setup()
+    require("spring").setup() -- This is required!
   end,
 }
 ```
