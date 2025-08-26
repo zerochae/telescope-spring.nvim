@@ -7,7 +7,7 @@ local U = require "spring.util"
 
 return function(opts, method)
   opts = opts or {}
-  U.set_spring_tables()
+  -- U.set_spring_tables() -- Removed: This was clearing cache on every call
   local annotation = U.get_annotation(method)
   local finder = spring_finder(annotation)
   local previewer = spring_previewer(annotation)
