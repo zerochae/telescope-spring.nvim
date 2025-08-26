@@ -3,10 +3,13 @@ local M = {}
 local spring_find_table = {}
 local spring_preview_table = {}
 local cache_timestamp = {}
-local get_cache_ttl = function()
+local get_cache_config = function()
   local spring = require "spring"
   local config = spring.get_config()
-  return config.cache_ttl or 5000 -- Default 5 seconds
+  return {
+    ttl = config.cache_ttl or 5000, -- Default 5 seconds
+    mode = config.cache_mode or "time" -- Default time-based cache
+  }
 end
 
 M.clear_tables = function()
@@ -24,19 +27,34 @@ M.get_preview_table = function()
 end
 
 M.is_cache_valid = function(annotation)
-  local current_time = vim.fn.localtime() * 1000
   local cached_time = cache_timestamp[annotation]
 
   if not cached_time then
     return false
   end
 
-  local ttl = get_cache_ttl()
-  return (current_time - cached_time) < ttl
+  local cache_config = get_cache_config()
+  
+  if cache_config.mode == "session" then
+    -- Cache is valid for the entire nvim session
+    return true
+  else
+    -- Time-based cache validation
+    local current_time = vim.fn.localtime() * 1000
+    return (current_time - cached_time) < cache_config.ttl
+  end
 end
 
 M.update_cache_timestamp = function(annotation)
-  cache_timestamp[annotation] = vim.fn.localtime() * 1000
+  local cache_config = get_cache_config()
+  
+  if cache_config.mode == "session" then
+    -- For session mode, just mark as cached (boolean)
+    cache_timestamp[annotation] = true
+  else
+    -- For time mode, store actual timestamp
+    cache_timestamp[annotation] = vim.fn.localtime() * 1000
+  end
 end
 
 M.has_cached_data = function(annotation)

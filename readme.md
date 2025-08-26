@@ -67,6 +67,7 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
     require("spring").setup({
       -- Optional: customize settings
       cache_ttl = 5000, -- Cache time in milliseconds
+      cache_mode = "time", -- Cache mode: "time" (uses TTL) or "session" (valid until nvim closes)
       
       ui = {
         show_icons = true,   -- Show method icons
@@ -139,6 +140,7 @@ use {
 ```lua
 require("spring").setup({
   cache_ttl = 5000,                         -- Cache TTL in milliseconds
+  cache_mode = "time",                      -- Cache mode: "time" (uses TTL) or "session" (valid until nvim closes)
   file_patterns = { "**/*.java" },          -- File patterns to search
   exclude_patterns = {                      -- Patterns to exclude
     "**/target/**", 
@@ -235,8 +237,13 @@ The plugin includes an intelligent caching system:
 ```lua
 {
   cache_ttl = 10000,  -- Cache for 10 seconds
+  cache_mode = "time", -- Cache mode: "time" (uses TTL) or "session" (valid until nvim closes)
 }
 ```
+
+**Cache Modes:**
+- `"time"`: Cache expires after the specified TTL (default)
+- `"session"`: Cache remains valid until nvim is closed
 
 ### Custom File Patterns
 

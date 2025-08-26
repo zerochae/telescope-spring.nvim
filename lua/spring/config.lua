@@ -3,6 +3,7 @@ local enums = require "spring.enum"
 local M = {
   prompt_title = enums.default_config.prompt_title,
   cache_ttl = 5000, -- Cache time-to-live in milliseconds
+  cache_mode = "time", -- Cache mode: "time" (uses TTL) or "session" (valid until nvim closes)
   file_patterns = { "**/*.java" }, -- File patterns to search
   exclude_patterns = { "**/target/**", "**/build/**" }, -- Patterns to exclude
   rg_additional_args = "", -- Additional ripgrep arguments
