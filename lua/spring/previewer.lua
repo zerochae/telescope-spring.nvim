@@ -11,7 +11,13 @@ return function(annotation)
     define_preview = function(self, entry)
       create_preview_table(annotation)
       local spring_preview_table = U.get_spring_preview_table()
-      local endpoint = entry[1]
+      local endpoint = entry.value
+
+      -- Check if preview table entry exists
+      if not spring_preview_table[endpoint] then
+        vim.notify("Preview data not found for: " .. tostring(endpoint), vim.log.levels.WARN)
+        return
+      end
 
       local path = spring_preview_table[endpoint].path
       local line_number = spring_preview_table[endpoint].line_number

@@ -16,22 +16,6 @@ M.get_method = function(annotation)
 end
 
 
-local get_grep_cmd = function(annotation)
-  if annotation == E.annotation.REQUEST_MAPPING then
-    return "rg '@RequestMapping(([^)]*?))' --multiline --type java --line-number --trim --vimgrep"
-  elseif annotation == E.annotation.GET_MAPPING then
-    return "rg '@GetMapping' --multiline --type java --line-number --trim --vimgrep"
-  elseif annotation == E.annotation.POST_MAPPING then
-    return "rg '@PostMapping' --multiline --type java --line-number --trim --vimgrep"
-  elseif annotation == E.annotation.PUT_MAPPING then
-    return "rg '@PutMapping' --multiline --type java --line-number --trim --vimgrep"
-  elseif annotation == E.annotation.DELETE_MAPPING then
-    return "rg '@DeleteMapping' --multiline --type java --line-number --trim --vimgrep"
-  else
-    local message = "not supported annotation: " .. annotation
-    error(message)
-  end
-end
 
 M.get_request_mapping_value = function(path)
   local find_table = cache.get_find_table()
@@ -96,70 +80,6 @@ M.create_spring_preview_table = function(annotation)
   end
 end
 
-local is_mapping_has_option = function(mapping)
-  if H.find(mapping, "method =") ~= nil then
-    return true
-  end
-
-  if H.find(mapping, "value =") ~= nil then
-    return true
-  end
-
-  return false
-end
-
-local is_request_mapping = function(mapping)
-  return H.find(mapping, E.annotation.REQUEST_MAPPING)
-end
-
-local function split_request_mapping(mapping_string)
-  local path, line_number, column = H.split(mapping_string, ":")
-  local mapping_methods = mapping_string:match "method%s*=%s*(%b{})"
-  local mapping_method = mapping_string:match "method%s*=%s*([%w%.]+)"
-  local mapping_value = mapping_string:match 'value%s*=%s*"([^"]+)"' or ""
-  local mapping_method_list = {}
-
-  if mapping_methods then
-    for method in mapping_methods:gmatch "RequestMethod%.(%w+)" do
-      table.insert(mapping_method_list, method:gsub("RequestMethod%.", ""):upper())
-    end
-  elseif mapping_method then
-    table.insert(mapping_method_list, mapping_method:gsub("RequestMethod%.", ""):upper())
-  else
-    mapping_method_list = nil
-  end
-
-  return path, line_number, column, mapping_value, mapping_method_list
-end
-
-local function split_object_mapping(mapping_string)
-  local path, line_number, column = H.split(mapping_string, ":")
-  local mapping_value = mapping_string:match 'value%s*=%s*"([^"]+)"' or ""
-
-  return path, line_number, column, mapping_value
-end
-
-local create_find_table_if_not_exist = function(path, annotation)
-  if not spring_find_table[path] then
-    spring_find_table[path] = {}
-  end
-
-  if not spring_find_table[path][annotation] then
-    spring_find_table[path][annotation] = {}
-  end
-end
-
-local insert_to_find_table = function(opts)
-  table.insert(
-    spring_find_table[opts.path][opts.annotation],
-    { value = opts.value, line_number = opts.line_number, column = opts.column }
-  )
-end
-
-local insert_to_find_request_table = function(opts)
-  spring_find_table[opts.path][opts.annotation] =
-    { value = opts.value, line_number = opts.line_number, column = opts.column }
-end
 
 M.create_spring_find_table = function(annotation)
   -- Check cache first
