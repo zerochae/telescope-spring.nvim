@@ -42,11 +42,11 @@ return function(annotation)
       local icon = get_method_icon(method)
       local method_text = get_method_text(method)
       local method_color = get_method_color(method)
-      
+
       -- Create display configuration
       local displayer
       local display_parts = {}
-      
+
       if icon ~= "" then
         table.insert(display_parts, { width = 2 })
       end
@@ -54,17 +54,17 @@ return function(annotation)
         table.insert(display_parts, { width = string.len(method_text) })
       end
       table.insert(display_parts, { remaining = true })
-      
+
       displayer = entry_display.create {
         separator = " ",
         items = display_parts,
       }
-      
+
       return {
         value = entry.value,
         display = function(entry_item)
           local display_items = {}
-          
+
           if icon ~= "" then
             table.insert(display_items, icon)
           end
@@ -72,7 +72,7 @@ return function(annotation)
             table.insert(display_items, { method_text, method_color })
           end
           table.insert(display_items, path)
-          
+
           return displayer(display_items)
         end,
         ordinal = entry.value,

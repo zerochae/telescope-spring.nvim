@@ -26,11 +26,11 @@ end
 M.is_cache_valid = function(annotation)
   local current_time = vim.fn.localtime() * 1000
   local cached_time = cache_timestamp[annotation]
-  
+
   if not cached_time then
     return false
   end
-  
+
   local ttl = get_cache_ttl()
   return (current_time - cached_time) < ttl
 end
@@ -84,3 +84,4 @@ M.create_preview_entry = function(endpoint, path, line_number, column)
 end
 
 return M
+

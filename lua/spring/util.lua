@@ -15,8 +15,6 @@ M.get_method = function(annotation)
   return method
 end
 
-
-
 M.get_request_mapping_value = function(path)
   local find_table = cache.get_find_table()
   if not find_table[path] then
@@ -79,7 +77,6 @@ M.create_spring_preview_table = function(annotation)
     end
   end
 end
-
 
 M.create_spring_find_table = function(annotation)
   -- Check cache first
@@ -158,7 +155,7 @@ M.create_spring_find_table = function(annotation)
       end
     end
   end
-  
+
   -- Update cache timestamp
   cache.update_cache_timestamp(annotation)
 end

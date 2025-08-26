@@ -84,13 +84,14 @@ M.get_grep_cmd = function(annotation)
     [E.annotation.DELETE_MAPPING] = "rg '@DeleteMapping' --multiline --type java --line-number --trim --vimgrep",
     [E.annotation.PATCH_MAPPING] = "rg '@PatchMapping' --multiline --type java --line-number --trim --vimgrep",
   }
-  
+
   local cmd = commands[annotation]
   if not cmd then
     error("not supported annotation: " .. annotation)
   end
-  
+
   return cmd
 end
 
 return M
+

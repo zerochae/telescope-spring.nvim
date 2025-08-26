@@ -1,6 +1,5 @@
 local M = {}
 
-local create_user_command = vim.api.nvim_create_user_command
 local default_config = require "spring.config"
 local spring_picker = require "spring.picker"
 local E = require "spring.enum"
@@ -37,12 +36,12 @@ M.setup = function(opts)
   opts = opts or {}
   M.config = vim.tbl_deep_extend("force", {}, default_config, opts)
   vim.g.spring_setup_called = true
-  
+
   -- Validate configuration
   if opts.cache_ttl and type(opts.cache_ttl) ~= "number" then
     vim.notify("Warning: cache_ttl must be a number", vim.log.levels.WARN)
   end
-  
+
   if opts.ui then
     if opts.ui.method_colors then
       for method, color in pairs(opts.ui.method_colors) do
@@ -51,16 +50,15 @@ M.setup = function(opts)
         end
       end
     end
-    
+
     if opts.ui.show_icons ~= nil and type(opts.ui.show_icons) ~= "boolean" then
       vim.notify("Warning: show_icons must be a boolean", vim.log.levels.WARN)
     end
-    
+
     if opts.ui.show_method ~= nil and type(opts.ui.show_method) ~= "boolean" then
       vim.notify("Warning: show_method must be a boolean", vim.log.levels.WARN)
     end
   end
-
 end
 
 return M

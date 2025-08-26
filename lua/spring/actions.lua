@@ -14,14 +14,14 @@ return function(prompt_bufnr)
     -- Get the actual file path from preview table
     local spring_preview_table = U.get_spring_preview_table()
     local endpoint = entry.value
-    
+
     if not spring_preview_table[endpoint] then
       vim.notify("Action data not found for: " .. tostring(endpoint), vim.log.levels.ERROR)
       return
     end
-    
+
     local file_path = spring_preview_table[endpoint].path
-    
+
     vim.cmd("edit " .. file_path)
 
     local bufnr = vim.fn.bufnr()
