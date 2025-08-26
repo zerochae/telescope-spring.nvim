@@ -253,13 +253,28 @@ M.set_cursor_on_entry = function(entry, bufnr, winid)
 end
 
 M.check_duplicate = function(find_table)
-  local seen = {} -- 중복을 확인하기 위한 테이블 생성
-  local result = {} -- 중복이 제거된 값을 담을 새로운 테이블
+  local seen = {}
+  local result = {}
 
   for _, value in ipairs(find_table) do
     if not seen[value] then
-      table.insert(result, value) -- 중복되지 않는 값만 새로운 테이블에 추가
-      seen[value] = true -- 해당 값이 등장했음을 표시
+      table.insert(result, value)
+      seen[value] = true
+    end
+  end
+
+  return result
+end
+
+M.check_duplicate_entries = function(entries)
+  local seen = {}
+  local result = {}
+
+  for _, entry in ipairs(entries) do
+    local key = entry.value
+    if not seen[key] then
+      table.insert(result, entry)
+      seen[key] = true
     end
   end
 

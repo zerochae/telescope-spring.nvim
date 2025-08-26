@@ -25,6 +25,21 @@ return function(annotation)
         callback = function()
           vim.schedule(function()
             U.set_cursor_on_entry(entry, bufnr, self.state.winid)
+            
+            -- Add highlighting for the annotation line
+            local ns_id = vim.api.nvim_create_namespace("spring_annotation_highlight")
+            vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
+            
+            if entry.lnum then
+              vim.api.nvim_buf_add_highlight(
+                bufnr,
+                ns_id,
+                "TelescopePreviewMatch", -- Use Telescope's match highlight
+                entry.lnum - 1, -- 0-indexed
+                0,
+                -1
+              )
+            end
           end)
         end,
       })

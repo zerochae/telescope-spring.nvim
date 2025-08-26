@@ -3,8 +3,11 @@ local M = {}
 local spring_find_table = {}
 local spring_preview_table = {}
 local cache_timestamp = {}
-local config = require "spring.config"
-local cache_ttl = config.cache_ttl or 5000 -- Default 5 seconds
+local get_cache_ttl = function()
+  local spring = require "spring"
+  local config = spring.get_config()
+  return config.cache_ttl or 5000 -- Default 5 seconds
+end
 
 M.clear_tables = function()
   spring_find_table = {}
@@ -28,7 +31,8 @@ M.is_cache_valid = function(annotation)
     return false
   end
   
-  return (current_time - cached_time) < cache_ttl
+  local ttl = get_cache_ttl()
+  return (current_time - cached_time) < ttl
 end
 
 M.update_cache_timestamp = function(annotation)

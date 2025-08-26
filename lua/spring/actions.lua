@@ -11,13 +11,24 @@ return function(prompt_bufnr)
       return
     end
 
-    vim.cmd("edit " .. entry.path)
+    -- Get the actual file path from preview table
+    local spring_preview_table = U.get_spring_preview_table()
+    local endpoint = entry.value
+    local file_path = spring_preview_table[endpoint].path
+    
+    vim.cmd("edit " .. file_path)
 
     local bufnr = vim.fn.bufnr()
 
     vim.api.nvim_set_current_buf(bufnr)
     vim.schedule(function()
-      U.set_cursor_on_entry(entry, bufnr, 0)
+      -- Create entry with path info for cursor positioning
+      local cursor_entry = {
+        path = file_path,
+        lnum = spring_preview_table[endpoint].line_number,
+        col = spring_preview_table[endpoint].column,
+      }
+      U.set_cursor_on_entry(cursor_entry, bufnr, 0)
     end)
   end)
   return true
