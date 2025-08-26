@@ -165,15 +165,6 @@ method_icons = {
   DELETE = "✖",   -- X mark
   PATCH  = "◉",   -- Circle with dot
 }
-
--- Theme 3: Developer Friendly (requires Nerd Fonts)
-method_icons = {
-  GET    = "",
-  POST   = "",
-  PUT    = "",
-  DELETE = "",
-  PATCH  = "",
-}
 ```
 
 ## 🔧 Advanced Features
