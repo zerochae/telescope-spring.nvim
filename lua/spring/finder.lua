@@ -51,7 +51,7 @@ return function(annotation)
         table.insert(display_parts, { width = 2 })
       end
       if method_text ~= "" then
-        table.insert(display_parts, { width = 8 })
+        table.insert(display_parts, { width = string.len(method_text) })
       end
       table.insert(display_parts, { remaining = true })
       
