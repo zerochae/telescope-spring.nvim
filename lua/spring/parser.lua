@@ -25,8 +25,10 @@ local function get_mapping_value(mapping, path)
 
   local variable_value = mapping:match(PATTERNS.VARIABLE_VALUE)
   if variable_value then
+    -- Escape special regex characters for ripgrep
+    local escaped_variable = variable_value:gsub("([{}()%[%].*+?^$|\\])", "\\%1")
     -- Fix rg command syntax: search for "variable_name = " pattern in the file
-    local cmd = "rg '" .. variable_value .. "\\s*=' " .. path
+    local cmd = "rg '" .. escaped_variable .. "\\s*=' " .. path
     local grep_results = H.run_cmd(cmd)
     if grep_results then
       variable_value = grep_results:match(PATTERNS.VARIABLE_ASSIGNMENT)

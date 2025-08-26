@@ -39,6 +39,11 @@ M.run_cmd = function(cmd)
     if exit_code == 1 then
       return "" -- Empty result for no matches
     end
+    -- Exit code 2 usually means invalid regex or command syntax
+    if exit_code == 2 then
+      vim.notify("Invalid search pattern or command syntax in: " .. cmd, vim.log.levels.ERROR)
+      return nil
+    end
     vim.notify("Command failed: " .. cmd .. " (exit code: " .. exit_code .. ")", vim.log.levels.ERROR)
     return nil
   end

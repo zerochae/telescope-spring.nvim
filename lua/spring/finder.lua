@@ -61,13 +61,16 @@ return function(annotation)
           for _, mapping_item in ipairs(mapping_object[annotation]) do
             local method_mapping_value = mapping_item.value or ""
             local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-            table.insert(finder_results, {
+            local entry = {
               value = endpoint,
               ordinal = endpoint,
-              display = make_display,
               method = method,
               path = request_mapping_value .. method_mapping_value,
-            })
+            }
+            entry.display = function(e)
+              return make_display(e)
+            end
+            table.insert(finder_results, entry)
           end
         end
       end
