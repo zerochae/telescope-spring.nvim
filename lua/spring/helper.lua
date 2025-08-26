@@ -35,6 +35,10 @@ M.run_cmd = function(cmd)
   local exit_code = vim.v.shell_error
   
   if exit_code ~= 0 then
+    -- Don't show error for common cases like "no matches found" (exit code 1)
+    if exit_code == 1 then
+      return "" -- Empty result for no matches
+    end
     vim.notify("Command failed: " .. cmd .. " (exit code: " .. exit_code .. ")", vim.log.levels.ERROR)
     return nil
   end

@@ -25,10 +25,13 @@ local function get_mapping_value(mapping, path)
 
   local variable_value = mapping:match(PATTERNS.VARIABLE_VALUE)
   if variable_value then
-    local cmd = "rg" .. " " .. variable_value .. " " .. "=" .. " " .. path
+    -- Fix rg command syntax: search for "variable_name = " pattern in the file
+    local cmd = "rg '" .. variable_value .. "\\s*=' " .. path
     local grep_results = H.run_cmd(cmd)
-    variable_value = grep_results:match(PATTERNS.VARIABLE_ASSIGNMENT)
-    return variable_value or ""
+    if grep_results then
+      variable_value = grep_results:match(PATTERNS.VARIABLE_ASSIGNMENT)
+      return variable_value or ""
+    end
   end
 
   return ""

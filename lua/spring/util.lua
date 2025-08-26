@@ -175,7 +175,7 @@ M.create_spring_find_table = function(annotation)
 
   local grep_results = H.run_cmd(cmd)
   if not grep_results or grep_results == "" then
-    vim.notify("No results found for annotation: " .. annotation, vim.log.levels.WARN)
+    -- Don't notify for empty results, it's normal
     return
   end
 
