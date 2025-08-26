@@ -43,21 +43,38 @@ return function(annotation)
       local method_text = get_method_text(method)
       local method_color = get_method_color(method)
       
-      -- Build display string based on settings
-      local parts = {}
+      -- Create display configuration
+      local displayer
+      local display_parts = {}
+      
       if icon ~= "" then
-        table.insert(parts, icon)
+        table.insert(display_parts, { width = 2 })
       end
       if method_text ~= "" then
-        table.insert(parts, method_text)
+        table.insert(display_parts, { width = 8 })
       end
-      table.insert(parts, path)
+      table.insert(display_parts, { remaining = true })
       
-      local display_string = table.concat(parts, " ")
+      displayer = entry_display.create {
+        separator = " ",
+        items = display_parts,
+      }
       
       return {
         value = entry.value,
-        display = display_string,
+        display = function(entry_item)
+          local display_items = {}
+          
+          if icon ~= "" then
+            table.insert(display_items, icon)
+          end
+          if method_text ~= "" then
+            table.insert(display_items, { method_text, method_color })
+          end
+          table.insert(display_items, path)
+          
+          return displayer(display_items)
+        end,
         ordinal = entry.value,
         method = method,
         path = path,
