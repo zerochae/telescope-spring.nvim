@@ -4,8 +4,17 @@ local spring_find_table = {}
 local spring_preview_table = {}
 local cache_timestamp = {}
 local get_cache_config = function()
-  local spring = require "spring"
-  local config = spring.get_config()
+  local state = require "spring.state"
+  local config = state.get_config()
+  
+  if not config then
+    -- Fallback to default config if state is not initialized
+    return {
+      ttl = 5000, -- Default 5 seconds
+      mode = "time" -- Default time-based cache
+    }
+  end
+  
   return {
     ttl = config.cache_ttl or 5000, -- Default 5 seconds
     mode = config.cache_mode or "time" -- Default time-based cache

@@ -3,6 +3,7 @@ local M = {}
 local default_config = require "spring.config"
 local spring_picker = require "spring.picker"
 local enums = require "spring.enum"
+local state = require "spring.state"
 
 -- Global config that will be used throughout the plugin
 M.config = vim.deepcopy(default_config)
@@ -35,6 +36,8 @@ end
 M.setup = function(opts)
   opts = opts or {}
   M.config = vim.tbl_deep_extend("force", {}, default_config, opts)
+  -- Update state with the new config
+  state.set_config(M.config)
   vim.g.spring_setup_called = true
 
   -- Validate configuration
