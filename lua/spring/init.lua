@@ -8,6 +8,9 @@ local E = require "spring.enum"
 -- Global config that will be used throughout the plugin
 M.config = vim.deepcopy(default_config)
 
+-- Track if setup has been called
+M._setup_called = false
+
 -- Function to get current config
 M.get_config = function()
   return M.config
@@ -36,6 +39,7 @@ end
 M.setup = function(opts)
   opts = opts or {}
   M.config = vim.tbl_deep_extend("force", {}, default_config, opts)
+  M._setup_called = true
   
   -- Validate configuration
   if opts.cache_ttl and type(opts.cache_ttl) ~= "number" then
@@ -60,29 +64,43 @@ M.setup = function(opts)
     end
   end
 
-  -- create_user_command("SpringAllMapping", function()
-  --   M.pick_all_mapping(opts)
-  -- end, {})
+  -- Commands are already created when module loads
+  -- Just ensure they exist in case setup is called before module load
+  ensure_commands()
+end
 
+-- Ensure commands are created when module is first loaded
+-- This makes the plugin work with lazy.nvim opts
+local function ensure_commands()
+  if M._commands_created then return end
+  
+  -- Use current config (which might be updated by setup)
+  local config = M.get_config()
+  
   create_user_command("SpringGetMapping", function()
-    M.pick_get_mapping(opts)
+    M.pick_get_mapping(config.get or {})
   end, {})
 
   create_user_command("SpringPostMapping", function()
-    M.pick_post_mapping(opts)
+    M.pick_post_mapping(config.post or {})
   end, {})
 
   create_user_command("SpringPutMapping", function()
-    M.pick_put_mapping(opts)
+    M.pick_put_mapping(config.put or {})
   end, {})
 
   create_user_command("SpringDeleteMapping", function()
-    M.pick_delete_mapping(opts)
+    M.pick_delete_mapping(config.delete or {})
   end, {})
 
   create_user_command("SpringPatchMapping", function()
-    M.pick_patch_mapping(opts)
+    M.pick_patch_mapping(config.patch or {})
   end, {})
+  
+  M._commands_created = true
 end
+
+-- Create commands immediately when module loads
+ensure_commands()
 
 return M
