@@ -37,12 +37,17 @@ vim.api.nvim_create_user_command("SpringClearCache", function()
   vim.notify("Spring cache cleared", vim.log.levels.INFO)
 end, {})
 
+vim.api.nvim_create_user_command("SpringCacheStatus", function()
+  local cache = require "spring.cache"
+  cache.show_cache_status()
+end, {})
+
 -- Main Spring command with subcommands
 vim.api.nvim_create_user_command("Spring", function(opts)
   local spring = require "spring"
   local subcommand = opts.fargs[1]
   if not subcommand then
-    vim.notify("Usage: Spring {Get|Post|Put|Delete|Patch|SaveCache|ClearCache}", vim.log.levels.WARN)
+    vim.notify("Usage: Spring {Get|Post|Put|Delete|Patch|SaveCache|ClearCache|CacheStatus}", vim.log.levels.WARN)
     return
   end
 
@@ -67,15 +72,18 @@ vim.api.nvim_create_user_command("Spring", function(opts)
     local cache = require "spring.cache"
     cache.clear_persistent_cache()
     vim.notify("Spring cache cleared", vim.log.levels.INFO)
+  elseif method == "CACHESTATUS" then
+    local cache = require "spring.cache"
+    cache.show_cache_status()
   else
     vim.notify(
-      "Unknown method: " .. subcommand .. ". Available: Get, Post, Put, Delete, Patch, SaveCache, ClearCache",
+      "Unknown method: " .. subcommand .. ". Available: Get, Post, Put, Delete, Patch, SaveCache, ClearCache, CacheStatus",
       vim.log.levels.ERROR
     )
   end
 end, {
   nargs = 1,
   complete = function()
-    return { "Get", "Post", "Put", "Delete", "Patch", "SaveCache", "ClearCache" }
+    return { "Get", "Post", "Put", "Delete", "Patch", "SaveCache", "ClearCache", "CacheStatus" }
   end,
 })

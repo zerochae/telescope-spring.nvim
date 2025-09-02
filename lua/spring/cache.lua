@@ -246,6 +246,73 @@ M.clear_persistent_cache = function()
   end
 end
 
+M.show_cache_status = function()
+  local cache_config = get_cache_config()
+  local cache_files = get_cache_files()
+  
+  local status_lines = {
+    "=== Spring Cache Status ===",
+    "Mode: " .. cache_config.mode,
+    "Project: " .. vim.fn.fnamemodify(get_project_root(), ":t"),
+    "Cache Directory: " .. cache_files.cache_dir,
+    "",
+    "=== Memory Cache ===",
+  }
+  
+  -- Show detailed cache contents
+  local find_count = 0
+  local annotations = {}
+  
+  -- Show actual cache contents for debugging
+  table.insert(status_lines, "=== Find Table Contents ===")
+  for path, path_data in pairs(spring_find_table) do
+    table.insert(status_lines, "Path: " .. path)
+    for annotation, entries in pairs(path_data) do
+      find_count = find_count + (type(entries) == "table" and #entries or 1)
+      if not vim.tbl_contains(annotations, annotation) then
+        table.insert(annotations, annotation)
+      end
+      
+      if type(entries) == "table" then
+        for i, entry in ipairs(entries) do
+          table.insert(status_lines, "  " .. annotation .. "[" .. i .. "]: " .. (entry.value or "no value"))
+        end
+      else
+        table.insert(status_lines, "  " .. annotation .. ": " .. (entries.value or "no value"))
+      end
+    end
+  end
+  
+  table.insert(status_lines, "")
+  table.insert(status_lines, "Find entries: " .. find_count)
+  table.insert(status_lines, "Preview entries: " .. vim.tbl_count(spring_preview_table))
+  table.insert(status_lines, "Cached annotations: " .. table.concat(annotations, ", "))
+  
+  if cache_config.mode == "persistent" then
+    table.insert(status_lines, "")
+    table.insert(status_lines, "=== File Cache Status ===")
+    table.insert(status_lines, "Find cache: " .. (file_exists(cache_files.find_cache_file) and "✓" or "✗"))
+    table.insert(status_lines, "Preview cache: " .. (file_exists(cache_files.preview_cache_file) and "✓" or "✗"))  
+    table.insert(status_lines, "Metadata: " .. (file_exists(cache_files.metadata_file) and "✓" or "✗"))
+    
+    if file_exists(cache_files.metadata_file) then
+      local ok, metadata = pcall(dofile, cache_files.metadata_file)
+      if ok and metadata then
+        table.insert(status_lines, "Created: " .. os.date("%Y-%m-%d %H:%M:%S", metadata.created_at))
+        if metadata.project_root then
+          table.insert(status_lines, "Project root: " .. metadata.project_root)
+        end
+      end
+    end
+  end
+  
+  -- Show in floating window or print
+  for _, line in ipairs(status_lines) do
+    print(line)
+  end
+  return status_lines
+end
+
 -- Auto-load cache on module initialization
 local function init()
   local cache_config = get_cache_config()
