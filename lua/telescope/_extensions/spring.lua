@@ -7,15 +7,15 @@ end
 local spring = require "spring"
 
 return telescope.register_extension {
-  setup = function(ext_config, config)
+  setup = function()
     -- telescope extension setup - usually not needed as main setup is handled by plugin/spring.lua
   end,
   exports = {
     -- Main spring picker (shows all endpoints)
     spring = function(opts)
-      return spring.pick_get_mapping(opts)  -- Default to GET or could be all mappings
+      return spring.pick_get_mapping(opts) -- Default to GET or could be all mappings
     end,
-    
+
     -- Individual method pickers
     get = function(opts)
       return spring.pick_get_mapping(opts)

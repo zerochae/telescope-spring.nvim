@@ -6,7 +6,7 @@ local cache_timestamp = {}
 
 -- Persistent cache configuration
 local function get_project_root()
-  local result = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null")
+  local result = vim.fn.system "git rev-parse --show-toplevel 2>/dev/null"
   if vim.v.shell_error ~= 0 then
     return vim.fn.getcwd() -- fallback to current directory
   end
@@ -16,7 +16,7 @@ end
 local function get_project_cache_dir()
   local project_root = get_project_root()
   local project_name = vim.fn.fnamemodify(project_root, ":t")
-  return vim.fn.stdpath("data") .. "/telescope-spring/" .. project_name
+  return vim.fn.stdpath "data" .. "/telescope-spring/" .. project_name
 end
 
 local function get_cache_files()
@@ -25,7 +25,7 @@ local function get_cache_files()
     cache_dir = cache_dir,
     find_cache_file = cache_dir .. "/find_cache.lua",
     preview_cache_file = cache_dir .. "/preview_cache.lua",
-    metadata_file = cache_dir .. "/metadata.lua"
+    metadata_file = cache_dir .. "/metadata.lua",
   }
 end
 local get_cache_config = function()
@@ -118,12 +118,12 @@ end
 
 M.should_use_cache = function(annotation)
   local cache_config = get_cache_config()
-  
+
   -- In persistent mode, check if we have specific annotation data
   if cache_config.mode == "persistent" then
     return M.is_cache_valid(annotation) and M.has_cached_data_for_annotation(annotation)
   end
-  
+
   -- In other modes, use existing logic
   return M.is_cache_valid(annotation) and M.has_cached_data(annotation)
 end
@@ -137,14 +137,14 @@ M.has_cached_data_for_annotation = function(annotation)
       break
     end
   end
-  
+
   -- Debug logging
   local state = require "spring.state"
   local config = state.get_config()
   if config and config.debug then
     print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") = " .. tostring(has_data))
   end
-  
+
   return has_data
 end
 
@@ -276,7 +276,7 @@ end
 M.show_cache_status = function()
   local cache_config = get_cache_config()
   local cache_files = get_cache_files()
-  
+
   local status_lines = {
     "=== Spring Cache Status ===",
     "Mode: " .. cache_config.mode,
@@ -285,11 +285,11 @@ M.show_cache_status = function()
     "",
     "=== Memory Cache ===",
   }
-  
+
   -- Show detailed cache contents
   local find_count = 0
   local annotations = {}
-  
+
   -- Show actual cache contents for debugging
   table.insert(status_lines, "=== Find Table Contents (showing all entries) ===")
   for path, path_data in pairs(spring_find_table) do
@@ -299,7 +299,7 @@ M.show_cache_status = function()
       if not vim.tbl_contains(annotations, annotation) then
         table.insert(annotations, annotation)
       end
-      
+
       if type(entries) == "table" then
         for i, entry in ipairs(entries) do
           table.insert(status_lines, "  " .. annotation .. "[" .. i .. "]: " .. (entry.value or "no value"))
@@ -308,21 +308,21 @@ M.show_cache_status = function()
         table.insert(status_lines, "  " .. annotation .. ": " .. (entries.value or "no value"))
       end
     end
-    table.insert(status_lines, "") -- 빈 줄 추가로 구분
+    table.insert(status_lines, "")
   end
-  
+
   table.insert(status_lines, "")
   table.insert(status_lines, "Find entries: " .. find_count)
   table.insert(status_lines, "Preview entries: " .. vim.tbl_count(spring_preview_table))
   table.insert(status_lines, "Cached annotations: " .. table.concat(annotations, ", "))
-  
+
   if cache_config.mode == "persistent" then
     table.insert(status_lines, "")
     table.insert(status_lines, "=== File Cache Status ===")
     table.insert(status_lines, "Find cache: " .. (file_exists(cache_files.find_cache_file) and "✓" or "✗"))
-    table.insert(status_lines, "Preview cache: " .. (file_exists(cache_files.preview_cache_file) and "✓" or "✗"))  
+    table.insert(status_lines, "Preview cache: " .. (file_exists(cache_files.preview_cache_file) and "✓" or "✗"))
     table.insert(status_lines, "Metadata: " .. (file_exists(cache_files.metadata_file) and "✓" or "✗"))
-    
+
     if file_exists(cache_files.metadata_file) then
       local ok, metadata = pcall(dofile, cache_files.metadata_file)
       if ok and metadata then
@@ -333,7 +333,7 @@ M.show_cache_status = function()
       end
     end
   end
-  
+
   -- Show in floating window or print
   for _, line in ipairs(status_lines) do
     print(line)

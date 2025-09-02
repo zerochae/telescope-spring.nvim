@@ -77,7 +77,9 @@ vim.api.nvim_create_user_command("Spring", function(opts)
     cache.show_cache_status()
   else
     vim.notify(
-      "Unknown method: " .. subcommand .. ". Available: Get, Post, Put, Delete, Patch, SaveCache, ClearCache, CacheStatus",
+      "Unknown method: "
+        .. subcommand
+        .. ". Available: Get, Post, Put, Delete, Patch, SaveCache, ClearCache, CacheStatus",
       vim.log.levels.ERROR
     )
   end

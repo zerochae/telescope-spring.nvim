@@ -76,7 +76,7 @@ return function(annotation)
 
       return {
         value = entry.value,
-        display = function(entry_item)
+        display = function()
           local display_items = {}
 
           if icon ~= "" then
