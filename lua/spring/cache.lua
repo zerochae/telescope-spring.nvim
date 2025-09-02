@@ -3,6 +3,7 @@ local M = {}
 local spring_find_table = {}
 local spring_preview_table = {}
 local cache_timestamp = {}
+local scanned_annotations = {} -- Track which annotations were directly scanned
 
 -- Persistent cache configuration
 local function get_project_root()
@@ -51,6 +52,7 @@ M.clear_tables = function()
   spring_find_table = {}
   spring_preview_table = {}
   cache_timestamp = {}
+  scanned_annotations = {}
 end
 
 M.get_find_table = function()
@@ -97,6 +99,8 @@ M.update_cache_timestamp = function(annotation)
   if cache_config.mode == "persistent" then
     -- For persistent mode, mark as cached but don't auto-save (save manually when needed)
     cache_timestamp[annotation] = true
+    -- Mark this annotation as directly scanned
+    scanned_annotations[annotation] = os.time()
   elseif cache_config.mode == "session" then
     -- For session mode, just mark as cached (boolean)
     cache_timestamp[annotation] = true
@@ -129,7 +133,22 @@ M.should_use_cache = function(annotation)
 end
 
 M.has_cached_data_for_annotation = function(annotation)
-  -- Check if we have data specifically for this annotation
+  -- In persistent mode, check if this annotation was directly scanned
+  local cache_config = get_cache_config()
+  if cache_config.mode == "persistent" then
+    local was_scanned = scanned_annotations[annotation] ~= nil
+    
+    -- Debug logging
+    local state = require "spring.state"
+    local config = state.get_config()
+    if config and config.debug then
+      print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") - was_scanned = " .. tostring(was_scanned))
+    end
+    
+    return was_scanned
+  end
+
+  -- In other modes, check if we have data for this annotation
   local has_data = false
   for _, mapping_object in pairs(spring_find_table) do
     if mapping_object[annotation] then
@@ -208,6 +227,7 @@ M.save_to_file = function()
     local metadata = {
       project_root = get_project_root(),
       timestamp = cache_timestamp,
+      scanned_annotations = scanned_annotations,
       version = "1.0",
       created_at = os.time(),
     }
@@ -243,8 +263,13 @@ M.load_from_file = function()
   -- Load metadata
   if file_exists(cache_files.metadata_file) then
     local ok, data = pcall(dofile, cache_files.metadata_file)
-    if ok and data and data.timestamp then
-      cache_timestamp = data.timestamp
+    if ok and data then
+      if data.timestamp then
+        cache_timestamp = data.timestamp
+      end
+      if data.scanned_annotations then
+        scanned_annotations = data.scanned_annotations
+      end
     end
   end
 end
