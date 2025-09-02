@@ -45,8 +45,8 @@ M.setup = function(opts)
     vim.notify("Warning: cache_ttl must be a number", vim.log.levels.WARN)
   end
 
-  if opts.cache_mode and opts.cache_mode ~= "time" and opts.cache_mode ~= "session" then
-    vim.notify("Warning: cache_mode must be 'time' or 'session'", vim.log.levels.WARN)
+  if opts.cache_mode and opts.cache_mode ~= "time" and opts.cache_mode ~= "session" and opts.cache_mode ~= "persistent" then
+    vim.notify("Warning: cache_mode must be 'time', 'session', or 'persistent'", vim.log.levels.WARN)
   end
 
   if opts.ui then
