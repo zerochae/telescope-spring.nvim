@@ -4,8 +4,22 @@ local enums = require "spring.enum"
 local entry_display = require "telescope.pickers.entry_display"
 
 local create_find_table = function(annotation)
-  util.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
-  util.create_spring_find_table(annotation)
+  local state = require "spring.state"
+  local config = state.get_config()
+  
+  if config and config.cache_mode == "persistent" then
+    -- In persistent mode, scan all annotations to avoid data loss
+    util.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
+    util.create_spring_find_table(enums.annotation.GET_MAPPING)
+    util.create_spring_find_table(enums.annotation.POST_MAPPING)
+    util.create_spring_find_table(enums.annotation.PUT_MAPPING)
+    util.create_spring_find_table(enums.annotation.DELETE_MAPPING)
+    util.create_spring_find_table(enums.annotation.PATCH_MAPPING)
+  else
+    -- In time/session mode, scan only needed annotations
+    util.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
+    util.create_spring_find_table(annotation)
+  end
 end
 
 local get_method_color = function(method)
