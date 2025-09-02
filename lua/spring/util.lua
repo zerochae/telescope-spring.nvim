@@ -158,6 +158,13 @@ M.create_spring_find_table = function(annotation)
 
   -- Update cache timestamp
   cache.update_cache_timestamp(annotation)
+  
+  -- Save to file if persistent mode (after all data is collected)
+  local state = require "spring.state"
+  local config = state.get_config()
+  if config and config.cache_mode == "persistent" then
+    cache.save_to_file()
+  end
 end
 
 M.set_cursor_on_entry = function(entry, bufnr, winid)

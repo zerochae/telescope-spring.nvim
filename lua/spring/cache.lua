@@ -95,9 +95,8 @@ M.update_cache_timestamp = function(annotation)
   local cache_config = get_cache_config()
 
   if cache_config.mode == "persistent" then
-    -- For persistent mode, mark as cached and auto-save
+    -- For persistent mode, mark as cached but don't auto-save (save manually when needed)
     cache_timestamp[annotation] = true
-    M.save_to_file()
   elseif cache_config.mode == "session" then
     -- For session mode, just mark as cached (boolean)
     cache_timestamp[annotation] = true
@@ -264,7 +263,7 @@ M.show_cache_status = function()
   local annotations = {}
   
   -- Show actual cache contents for debugging
-  table.insert(status_lines, "=== Find Table Contents ===")
+  table.insert(status_lines, "=== Find Table Contents (showing all entries) ===")
   for path, path_data in pairs(spring_find_table) do
     table.insert(status_lines, "Path: " .. path)
     for annotation, entries in pairs(path_data) do
@@ -281,6 +280,7 @@ M.show_cache_status = function()
         table.insert(status_lines, "  " .. annotation .. ": " .. (entries.value or "no value"))
       end
     end
+    table.insert(status_lines, "") -- 빈 줄 추가로 구분
   end
   
   table.insert(status_lines, "")
