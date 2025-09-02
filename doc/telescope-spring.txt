@@ -1,0 +1,449 @@
+*telescope-spring.txt*     A Telescope picker for Spring Boot API endpoints
+*telescope-spring* *spring* *telescope-spring.nvim*
+
+    ████████╗███████╗██╗     ███████╗███████╗ ██████╗ ██████╗ ███████╗
+    ╚══██╔══╝██╔════╝██║     ██╔════╝██╔════╝██╔════╝██╔═══██╗██╔════╝
+       ██║   █████╗  ██║     █████╗  ███████╗██║     ██║   ██║██████╗ 
+       ██║   ██╔══╝  ██║     ██╔══╝  ╚════██║██║     ██║   ██║██╔═══╝ 
+       ██║   ███████╗███████╗███████╗███████║╚██████╗╚██████╔╝███████╗
+       ╚═╝   ╚══════╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚══════╝
+                                                                      
+           ███████╗██████╗ ██████╗ ██╗███╗   ██╗ ██████╗              
+           ██╔════╝██╔══██╗██╔══██╗██║████╗  ██║██╔════╝              
+           ███████╗██████╔╝██████╔╝██║██╔██╗ ██║██║  ███╗             
+           ╚════██║██╔═══╝ ██╔══██╗██║██║╚██╗██║██║   ██║             
+           ███████║██║     ██║  ██║██║██║ ╚████║╚██████╔╝             
+           ╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝              
+
+Author:   zerochae <https://github.com/zerochae>
+Repo:     https://github.com/zerochae/telescope-spring.nvim
+License:  MIT
+
+==============================================================================
+CONTENTS                                                  *telescope-spring-toc*
+
+    1. Introduction ................................ |telescope-spring-intro|
+    2. Requirements ................................ |telescope-spring-requirements|
+    3. Installation ................................ |telescope-spring-installation|
+    4. Setup ....................................... |telescope-spring-setup|
+    5. Usage ....................................... |telescope-spring-usage|
+    6. Commands .................................... |telescope-spring-commands|
+    7. Telescope Extension ......................... |telescope-spring-extension|
+    8. Configuration ............................... |telescope-spring-config|
+    9. UI Customization ............................ |telescope-spring-ui|
+    10. Caching .................................... |telescope-spring-caching|
+    11. Advanced Features .......................... |telescope-spring-advanced|
+    12. Troubleshooting ............................ |telescope-spring-troubleshooting|
+
+==============================================================================
+1. INTRODUCTION                                       *telescope-spring-intro*
+
+telescope-spring.nvim is a powerful Telescope picker for quickly finding and 
+navigating Spring Boot API endpoints. It provides fast endpoint discovery with 
+customizable UI and smart caching capabilities.
+
+Features:~
+  • 🔍 Fast endpoint discovery by HTTP method
+  • 🎨 Customizable icons, colors, and display options  
+  • ⚡ Smart TTL-based caching for improved performance
+  • 🔗 Path variable support with RequestMapping patterns
+  • 📍 Precise navigation to exact annotation line
+  • 🌈 Syntax highlighting in preview window
+  • 🔧 Easy setup with sensible defaults
+
+==============================================================================
+2. REQUIREMENTS                                 *telescope-spring-requirements*
+
+  • Neovim >= 0.8.0
+  • telescope.nvim (https://github.com/nvim-telescope/telescope.nvim)
+  • ripgrep (https://github.com/BurntSushi/ripgrep) for fast searching
+
+==============================================================================
+3. INSTALLATION                                 *telescope-spring-installation*
+
+lazy.nvim:~
+>lua
+    {
+      "zerochae/telescope-spring.nvim",
+      dependencies = { "nvim-telescope/telescope.nvim" },
+      cmd = {
+        "Spring",
+        "SpringGetMapping",
+        "SpringPostMapping", 
+        "SpringPutMapping",
+        "SpringDeleteMapping",
+        "SpringPatchMapping",
+      },
+      config = function()
+        require("spring").setup()
+      end,
+    }
+<
+
+packer.nvim:~
+>lua
+    use {
+      "zerochae/telescope-spring.nvim", 
+      requires = { "nvim-telescope/telescope.nvim" },
+      config = function()
+        require("spring").setup()
+      end,
+    }
+<
+
+==============================================================================
+4. SETUP                                             *telescope-spring-setup*
+
+                                                              *spring.setup()*
+spring.setup({config})
+    Configure telescope-spring.nvim with custom options.
+
+    IMPORTANT: You MUST call `require("spring").setup()` for the plugin to work
+    properly. The plugin will not function with just lazy loading options.
+
+    Parameters: ~
+        {config} (table) Optional configuration table
+
+    Usage: ~
+>lua
+        require("spring").setup({
+          cache_ttl = 5000,
+          cache_mode = "time",
+          ui = {
+            show_icons = true,
+            show_method = true,
+          },
+        })
+<
+
+==============================================================================
+5. USAGE                                             *telescope-spring-usage*
+
+The plugin provides multiple ways to access Spring Boot endpoints:
+
+Simple Commands (Recommended):~
+    :Spring Get      " Find all GET endpoints
+    :Spring Post     " Find all POST endpoints
+    :Spring Put      " Find all PUT endpoints
+    :Spring Delete   " Find all DELETE endpoints
+    :Spring Patch    " Find all PATCH endpoints
+
+Alternative Commands:~
+    :SpringGetMapping     " Find all GET endpoints
+    :SpringPostMapping    " Find all POST endpoints
+    :SpringPutMapping     " Find all PUT endpoints
+    :SpringDeleteMapping  " Find all DELETE endpoints
+    :SpringPatchMapping   " Find all PATCH endpoints
+
+Telescope Extension:~
+    :Telescope spring        " Default picker (GET endpoints)
+    :Telescope spring get    " GET endpoints
+    :Telescope spring post   " POST endpoints
+    :Telescope spring put    " PUT endpoints
+    :Telescope spring delete " DELETE endpoints
+    :Telescope spring patch  " PATCH endpoints
+
+==============================================================================
+6. COMMANDS                                       *telescope-spring-commands*
+
+                                                                      *:Spring*
+:Spring {method}
+    Main command with subcommands for different HTTP methods.
+    
+    Parameters:~
+        {method}  HTTP method: Get, Post, Put, Delete, or Patch
+    
+    Examples:~
+        :Spring Get
+        :Spring Post
+        :Spring Delete
+
+                                                           *:SpringGetMapping*
+:SpringGetMapping
+    Open Telescope picker for GET endpoints only.
+
+                                                          *:SpringPostMapping*  
+:SpringPostMapping
+    Open Telescope picker for POST endpoints only.
+
+                                                           *:SpringPutMapping*
+:SpringPutMapping
+    Open Telescope picker for PUT endpoints only.
+
+                                                        *:SpringDeleteMapping*
+:SpringDeleteMapping
+    Open Telescope picker for DELETE endpoints only.
+
+                                                         *:SpringPatchMapping*
+:SpringPatchMapping
+    Open Telescope picker for PATCH endpoints only.
+
+==============================================================================
+7. TELESCOPE EXTENSION                            *telescope-spring-extension*
+
+The plugin registers itself as a telescope extension, providing access through
+the `:Telescope` command:
+
+    :Telescope spring [method]
+
+Available methods:~
+    spring     Default picker (GET endpoints)
+    get        GET endpoints
+    post       POST endpoints  
+    put        PUT endpoints
+    delete     DELETE endpoints
+    patch      PATCH endpoints
+
+Usage with options:~
+>lua
+    require("telescope").extensions.spring.get({
+      prompt_title = "Custom GET Endpoints",
+      -- other telescope options
+    })
+<
+
+==============================================================================
+8. CONFIGURATION                                   *telescope-spring-config*
+
+Default Configuration:~
+>lua
+    require("spring").setup({
+      cache_ttl = 5000,                         -- Cache TTL in milliseconds
+      cache_mode = "time",                      -- Cache mode: "time" or "session"  
+      file_patterns = { "**/*.java" },          -- File patterns to search
+      exclude_patterns = {                      -- Patterns to exclude
+        "**/target/**", 
+        "**/build/**" 
+      },
+      
+      ui = {
+        show_icons = false,                     -- Show method icons
+        show_method = true,                     -- Show method text
+        
+        method_colors = {
+          GET = "TelescopeResultsNumber",
+          POST = "TelescopeResultsConstant",
+          PUT = "TelescopeResultsKeyword", 
+          DELETE = "TelescopeResultsSpecialChar",
+          PATCH = "TelescopeResultsFunction",
+        },
+        
+        method_icons = {
+          GET = "📥",
+          POST = "📤",
+          PUT = "✏️",
+          DELETE = "🗑️", 
+          PATCH = "🔧",
+        },
+      },
+      
+      -- Method-specific configurations
+      get = {
+        prompt_title = "Spring GET Mappings",
+      },
+      post = {
+        prompt_title = "Spring POST Mappings", 
+      },
+      put = {
+        prompt_title = "Spring PUT Mappings",
+      },
+      delete = {
+        prompt_title = "Spring DELETE Mappings",
+      },
+      patch = {
+        prompt_title = "Spring PATCH Mappings",
+      },
+    })
+<
+
+Configuration Options:~
+
+    cache_ttl (number): Cache time-to-live in milliseconds. Default: 5000
+    
+    cache_mode (string): Cache behavior mode. Options:
+        "time"    - Cache expires after TTL (default)
+        "session" - Cache valid until nvim closes
+    
+    file_patterns (table): Glob patterns for files to search.
+        Default: { "**/*.java" }
+    
+    exclude_patterns (table): Patterns to exclude from search.
+        Default: { "**/target/**", "**/build/**" }
+
+==============================================================================
+9. UI CUSTOMIZATION                                   *telescope-spring-ui*
+
+The plugin offers flexible UI customization through the `ui` configuration
+table:
+
+Display Options:~
+>lua
+    -- Option 1: Icons only
+    ui = {
+      show_icons = true,
+      show_method = false,
+    }
+    -- Result: 📥 /api/users
+    
+    -- Option 2: Method text only (default)  
+    ui = {
+      show_icons = false,
+      show_method = true,
+    }
+    -- Result: GET /api/users
+    
+    -- Option 3: Both icons and method text
+    ui = {
+      show_icons = true, 
+      show_method = true,
+    }
+    -- Result: 📥 GET /api/users
+    
+    -- Option 4: Minimal (path only)
+    ui = {
+      show_icons = false,
+      show_method = false,
+    }
+    -- Result: /api/users
+<
+
+Color Customization:~
+>lua
+    ui = {
+      method_colors = {
+        GET = "DiagnosticOk",      -- Green
+        POST = "DiagnosticInfo",    -- Blue
+        PUT = "DiagnosticWarn",     -- Yellow
+        DELETE = "DiagnosticError", -- Red
+        PATCH = "DiagnosticHint",   -- Purple
+      },
+    }
+<
+
+Icon Themes:~
+>lua
+    method_icons = {
+      GET    = "📥",  -- Inbox (receiving data)
+      POST   = "📤",  -- Outbox (sending data)  
+      PUT    = "✏️",   -- Pencil (editing)
+      DELETE = "🗑️",  -- Trash (deleting)
+      PATCH  = "🔧",  -- Wrench (fixing/patching)
+    }
+    
+    method_icons = {
+      GET    = "▼",   -- Down arrow
+      POST   = "▲",   -- Up arrow
+      PUT    = "◆",   -- Diamond
+      DELETE = "✖",   -- X mark  
+      PATCH  = "◉",   -- Circle with dot
+    }
+<
+
+==============================================================================
+10. CACHING                                        *telescope-spring-caching*
+
+The plugin includes an intelligent caching system to improve performance:
+
+Cache Modes:~
+
+    "time" mode (default):
+        Cache expires after the specified `cache_ttl` milliseconds.
+        Useful for development when endpoints change frequently.
+        
+    "session" mode: 
+        Cache remains valid until Neovim is closed.
+        Useful for stable codebases or long coding sessions.
+
+Configuration:~
+>lua
+    {
+      cache_ttl = 10000,     -- Cache for 10 seconds
+      cache_mode = "time",   -- Use TTL-based caching
+    }
+    
+    {
+      cache_mode = "session", -- Cache until nvim closes
+    }
+<
+
+The cache automatically invalidates when:
+  • TTL expires (in "time" mode)
+  • Neovim is restarted (in "session" mode)  
+  • Plugin is reloaded
+
+==============================================================================
+11. ADVANCED FEATURES                            *telescope-spring-advanced*
+
+Custom File Patterns:~
+>lua
+    {
+      file_patterns = { 
+        "**/*.java", 
+        "**/*.kt"     -- Include Kotlin files
+      },
+      exclude_patterns = { 
+        "**/target/**", 
+        "**/build/**",
+        "**/node_modules/**",
+        "**/test/**"  -- Exclude test directories
+      },
+    }
+<
+
+Additional Ripgrep Arguments:~
+>lua
+    {
+      rg_additional_args = "--hidden --no-ignore"
+    }
+<
+
+Method-Specific Configuration:~
+>lua
+    {
+      get = {
+        prompt_title = "🔍 Find GET Endpoints",
+        -- Additional telescope options for GET
+      },
+      post = {
+        prompt_title = "📤 Find POST Endpoints", 
+      },
+    }
+<
+
+==============================================================================
+12. TROUBLESHOOTING                        *telescope-spring-troubleshooting*
+
+Common Issues:~
+
+Q: Plugin doesn't work after installation
+A: Make sure you called `require("spring").setup()` in your config function.
+   The plugin requires explicit setup to function properly.
+
+Q: No endpoints found
+A: Check that:
+   • You're in a Java/Spring Boot project
+   • Java files contain @RequestMapping, @GetMapping, etc. annotations
+   • `file_patterns` includes the correct file types
+   • `exclude_patterns` isn't excluding your source files
+
+Q: Cache not working as expected  
+A: Verify your `cache_mode` and `cache_ttl` settings:
+   • "time" mode: cache expires after TTL milliseconds
+   • "session" mode: cache persists until nvim closes
+
+Q: Icons not displaying
+A: Ensure:
+   • `show_icons = true` in ui configuration
+   • Your terminal/font supports the configured emoji icons
+   • Try different icon themes if needed
+
+Q: Colors not working
+A: Check that the highlight groups in `method_colors` exist in your colorscheme.
+   Use `:highlight` command to verify available groups.
+
+Debug Information:~
+    Check if setup was called: `echo g:spring_setup_called`
+    View current config: `lua print(vim.inspect(require("spring").get_config()))`
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
