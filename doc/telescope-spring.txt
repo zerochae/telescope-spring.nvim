@@ -45,7 +45,7 @@ customizable UI and smart caching capabilities.
 Features:~
   • 🔍 Fast endpoint discovery by HTTP method
   • 🎨 Customizable icons, colors, and display options  
-  • ⚡ Smart TTL-based caching for improved performance
+  • ⚡ Smart caching with persistent disk storage option
   • 🔗 Path variable support with RequestMapping patterns
   • 📍 Precise navigation to exact annotation line
   • 🌈 Syntax highlighting in preview window
@@ -135,6 +135,11 @@ Alternative Commands:~
     :SpringDeleteMapping  " Find all DELETE endpoints
     :SpringPatchMapping   " Find all PATCH endpoints
 
+Cache Management Commands:~
+    :Spring SaveCache     " Force save cache to disk (persistent mode)
+    :Spring ClearCache    " Clear all cached data
+    :Spring CacheStatus   " Show detailed cache information
+
 Telescope Extension:~
     :Telescope spring        " Default picker (GET endpoints)
     :Telescope spring get    " GET endpoints
@@ -208,8 +213,9 @@ Usage with options:~
 Default Configuration:~
 >lua
     require("spring").setup({
-      cache_ttl = 5000,                         -- Cache TTL in milliseconds
-      cache_mode = "time",                      -- Cache mode: "time" or "session"  
+      cache_ttl = 5000,                         -- Cache TTL in milliseconds (time/session modes)
+      cache_mode = "time",                      -- Cache mode: "time", "session", or "persistent"  
+      debug = false,                            -- Enable debug logging
       file_patterns = { "**/*.java" },          -- File patterns to search
       exclude_patterns = {                      -- Patterns to exclude
         "**/target/**", 
@@ -261,8 +267,12 @@ Configuration Options:~
     cache_ttl (number): Cache time-to-live in milliseconds. Default: 5000
     
     cache_mode (string): Cache behavior mode. Options:
-        "time"    - Cache expires after TTL (default)
-        "session" - Cache valid until nvim closes
+        "time"      - Cache expires after TTL (default)
+        "session"   - Cache valid until nvim closes
+        "persistent" - Cache saved to disk, persists across sessions
+    
+    debug (boolean): Enable debug logging for troubleshooting.
+        Default: false
     
     file_patterns (table): Glob patterns for files to search.
         Default: { "**/*.java" }
@@ -342,7 +352,7 @@ Icon Themes:~
 ==============================================================================
 10. CACHING                                        *telescope-spring-caching*
 
-The plugin includes an intelligent caching system to improve performance:
+The plugin includes an intelligent caching system with three modes:
 
 Cache Modes:~
 
@@ -353,22 +363,67 @@ Cache Modes:~
     "session" mode: 
         Cache remains valid until Neovim is closed.
         Useful for stable codebases or long coding sessions.
+        
+    "persistent" mode:
+        Cache is saved to disk and persists across nvim sessions.
+        Provides maximum performance for large projects.
 
-Configuration:~
+Basic Configuration:~
 >lua
     {
-      cache_ttl = 10000,     -- Cache for 10 seconds
-      cache_mode = "time",   -- Use TTL-based caching
+      cache_ttl = 10000,       -- Cache for 10 seconds (time/session modes)
+      cache_mode = "time",     -- Use TTL-based caching
     }
     
     {
-      cache_mode = "session", -- Cache until nvim closes
+      cache_mode = "session",  -- Cache until nvim closes
+    }
+    
+    {
+      cache_mode = "persistent", -- Disk-persistent cache
+      debug = false,           -- Enable for troubleshooting
     }
 <
 
+                                              *telescope-spring-persistent-cache*
+Persistent Cache Mode:~
+
+The persistent cache mode offers the best performance for large projects:
+
+Features:
+  • 📁 Project-specific caching: Each project gets its own cache directory
+  • 💾 Disk storage: Cache survives nvim restarts and system reboots
+  • 🚀 Instant loading: No re-scanning on subsequent launches  
+  • 🔄 Smart invalidation: Detects when annotations need re-scanning
+  • 🗂️ Cache location: `~/.local/share/nvim/telescope-spring/[project-name]/`
+
+Cache Management Commands:~
+    :SpringSaveCache      Force save current cache to disk
+    :SpringClearCache     Clear all cache files for current project
+    :SpringCacheStatus    Show detailed cache information
+    
+    :Spring SaveCache     Same as :SpringSaveCache
+    :Spring ClearCache    Same as :SpringClearCache  
+    :Spring CacheStatus   Same as :SpringCacheStatus
+
+Cache Files Structure:~
+>
+    ~/.local/share/nvim/telescope-spring/my-project/
+    ├── find_cache.lua    " Endpoint data (paths, methods, locations)
+    └── metadata.lua      " Scan history and project metadata
+<
+
+When to use persistent mode:
+  ✅ Large Spring Boot projects with many controllers
+  ✅ Frequent nvim restarts during development
+  ✅ Want maximum performance after initial scan
+  ❌ Small projects (overhead not worth it)
+  ❌ Controllers change very frequently
+
 The cache automatically invalidates when:
   • TTL expires (in "time" mode)
-  • Neovim is restarted (in "session" mode)  
+  • Neovim is restarted (in "session" mode)
+  • Annotations are modified (in "persistent" mode)
   • Plugin is reloaded
 
 ==============================================================================
@@ -429,7 +484,14 @@ A: Check that:
 Q: Cache not working as expected  
 A: Verify your `cache_mode` and `cache_ttl` settings:
    • "time" mode: cache expires after TTL milliseconds
-   • "session" mode: cache persists until nvim closes
+   • "session" mode: cache persists until nvim closes  
+   • "persistent" mode: cache saved to disk, check :SpringCacheStatus
+
+Q: Persistent cache showing incomplete results
+A: Enable debug mode to troubleshoot:
+   • Set `debug = true` in setup configuration
+   • Use :SpringCacheStatus to check cache state
+   • Try :SpringClearCache and re-scan if needed
 
 Q: Icons not displaying
 A: Ensure:

@@ -6,7 +6,7 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 
 - 🔍 **Fast Endpoint Discovery**: Quickly find Spring Boot API endpoints by HTTP method
 - 🎨 **Customizable UI**: Configurable icons, colors, and display options
-- ⚡ **Smart Caching**: TTL-based caching for improved performance
+- ⚡ **Smart Caching**: Multiple cache modes including persistent disk storage
 - 🔗 **Path Variable Support**: Handles complex path variables and RequestMapping patterns
 - 📍 **Precise Navigation**: Jump directly to the exact line with annotation highlighting
 - 🌈 **Syntax Highlighting**: Preview window with Java syntax highlighting
@@ -22,6 +22,14 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 :Spring Put      " Find all PUT endpoints
 :Spring Delete   " Find all DELETE endpoints
 :Spring Patch    " Find all PATCH endpoints
+```
+
+### Cache Management Commands
+
+```vim
+:Spring SaveCache     " Manually save cache to disk (persistent mode only)
+:Spring ClearCache    " Clear all cached data
+:Spring CacheStatus   " Show current cache status
 ```
 
 ### Alternative Commands
@@ -66,8 +74,9 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
   config = function()
     require("spring").setup({
       -- Optional: customize settings
-      cache_ttl = 5000, -- Cache time in milliseconds
-      cache_mode = "time", -- Cache mode: "time" (uses TTL) or "session" (valid until nvim closes)
+      cache_ttl = 5000, -- Cache time in milliseconds (time/session modes)
+      cache_mode = "time", -- Cache mode: "time", "session", or "persistent"
+      debug = false, -- Enable debug logging
       
       ui = {
         show_icons = true,   -- Show method icons
@@ -139,8 +148,9 @@ use {
 
 ```lua
 require("spring").setup({
-  cache_ttl = 5000,                         -- Cache TTL in milliseconds
-  cache_mode = "time",                      -- Cache mode: "time" (uses TTL) or "session" (valid until nvim closes)
+  cache_ttl = 5000,                         -- Cache TTL in milliseconds (time/session modes)
+  cache_mode = "time",                      -- Cache mode: "time", "session", or "persistent"
+  debug = false,                            -- Enable debug logging
   file_patterns = { "**/*.java" },          -- File patterns to search
   exclude_patterns = {                      -- Patterns to exclude
     "**/target/**", 
@@ -232,18 +242,59 @@ method_icons = {
 
 ### Caching System
 
-The plugin includes an intelligent caching system:
+The plugin includes an intelligent caching system with three modes:
 
 ```lua
 {
-  cache_ttl = 10000,  -- Cache for 10 seconds
-  cache_mode = "time", -- Cache mode: "time" (uses TTL) or "session" (valid until nvim closes)
+  cache_ttl = 10000,   -- Cache for 10 seconds (time/session modes only)
+  cache_mode = "time", -- Cache mode: "time", "session", or "persistent"
+  debug = false,       -- Enable debug logging for troubleshooting
 }
 ```
 
 **Cache Modes:**
 - `"time"`: Cache expires after the specified TTL (default)
 - `"session"`: Cache remains valid until nvim is closed
+- `"persistent"`: Cache is saved to disk and persists across nvim sessions
+
+### Persistent Cache Mode
+
+The persistent cache mode offers the best performance for large projects:
+
+```lua
+require("spring").setup({
+  cache_mode = "persistent",
+  debug = false, -- Set to true for troubleshooting
+})
+```
+
+**Features:**
+- 📁 **Project-specific caching**: Each project gets its own cache directory
+- 💾 **Disk storage**: Cache survives nvim restarts and system reboots  
+- 🚀 **Instant loading**: No re-scanning on subsequent launches
+- 🔄 **Smart invalidation**: Automatically detects when annotations need re-scanning
+- 🗂️ **Cache location**: `~/.local/share/nvim/telescope-spring/[project-name]/`
+
+**Cache Management:**
+```vim
+:SpringSaveCache     " Force save current cache to disk
+:SpringClearCache    " Clear all cache files for current project
+:SpringCacheStatus   " Show detailed cache information
+```
+
+**Cache Files Structure:**
+```
+~/.local/share/nvim/telescope-spring/my-project/
+├── find_cache.lua    " Endpoint data (paths, methods, locations)
+└── metadata.lua      " Scan history and project metadata
+```
+
+**When to use persistent mode:**
+- ✅ Large Spring Boot projects with many controllers
+- ✅ Frequent nvim restarts during development
+- ✅ Want maximum performance after initial scan
+- ❌ Small projects (overhead not worth it)
+- ❌ Controllers change very frequently
 
 ### Custom File Patterns
 
