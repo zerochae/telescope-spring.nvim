@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.1](https://github.com/zerochae/telescope-spring.nvim/compare/v1.0.0...v1.0.1) (2025-09-02)
+
+
+### Bug Fixes
+
+* release pipeline ([cad849f](https://github.com/zerochae/telescope-spring.nvim/commit/cad849fe110c2198304ca54e28a8b407cf5d6240))
+* release pipeline ([3e4e3f2](https://github.com/zerochae/telescope-spring.nvim/commit/3e4e3f2278b97b271ae4fd25ac3685765be336c5))
+* SpringSaveCache command and references ([b6fe3b9](https://github.com/zerochae/telescope-spring.nvim/commit/b6fe3b9af87ea92fc8237137597791bbd2a8baa7))
+* SpringSaveCache command and references ([f8f3149](https://github.com/zerochae/telescope-spring.nvim/commit/f8f3149884d0c8982fda87ca275678f17ea019b2))
+
 ## 1.0.0 (2025-09-02)
 
 
