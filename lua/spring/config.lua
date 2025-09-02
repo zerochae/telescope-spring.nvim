@@ -4,6 +4,7 @@ local M = {
   prompt_title = enums.default_config.prompt_title,
   cache_ttl = 5000, -- Cache time-to-live in milliseconds
   cache_mode = "persistent", -- Cache mode: "time" (uses TTL), "session" (valid until nvim closes), or "persistent" (file-based cache)
+  debug = false, -- Enable debug logging
   file_patterns = { "**/*.java" }, -- File patterns to search
   exclude_patterns = { "**/target/**", "**/build/**" }, -- Patterns to exclude
   rg_additional_args = "", -- Additional ripgrep arguments

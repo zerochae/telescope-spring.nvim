@@ -117,7 +117,25 @@ M.has_cached_data = function(annotation)
 end
 
 M.should_use_cache = function(annotation)
+  local cache_config = get_cache_config()
+  
+  -- In persistent mode, check if we have specific annotation data
+  if cache_config.mode == "persistent" then
+    return M.is_cache_valid(annotation) and M.has_cached_data_for_annotation(annotation)
+  end
+  
+  -- In other modes, use existing logic
   return M.is_cache_valid(annotation) and M.has_cached_data(annotation)
+end
+
+M.has_cached_data_for_annotation = function(annotation)
+  -- Check if we have data specifically for this annotation
+  for _, mapping_object in pairs(spring_find_table) do
+    if mapping_object[annotation] then
+      return true
+    end
+  end
+  return false
 end
 
 M.create_find_table_entry = function(path, annotation)

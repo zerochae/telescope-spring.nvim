@@ -81,7 +81,18 @@ end
 M.create_spring_find_table = function(annotation)
   -- Check cache first
   if cache.should_use_cache(annotation) then
+    local state = require "spring.state"
+    local config = state.get_config()
+    if config and config.debug then
+      print("DEBUG: Skipping scan for " .. annotation .. " - cache exists")
+    end
     return
+  end
+  
+  local state = require "spring.state"
+  local config = state.get_config()
+  if config and config.debug then
+    print("DEBUG: Scanning for " .. annotation)
   end
 
   local success, cmd = pcall(parser.get_grep_cmd, annotation)
@@ -92,8 +103,18 @@ M.create_spring_find_table = function(annotation)
 
   local grep_results = helper.run_cmd(cmd)
   if not grep_results or grep_results == "" then
-    -- Don't notify for empty results, it's normal
+    local state = require "spring.state"
+    local config = state.get_config()
+    if config and config.debug then
+      print("DEBUG: No results for " .. annotation)
+    end
     return
+  end
+  
+  local state = require "spring.state"
+  local config = state.get_config()
+  if config and config.debug then
+    print("DEBUG: Found results for " .. annotation .. " - " .. string.len(grep_results) .. " chars")
   end
 
   for line in tostring(grep_results):gmatch "[^\n]+" do

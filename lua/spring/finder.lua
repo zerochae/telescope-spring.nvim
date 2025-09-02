@@ -6,7 +6,7 @@ local entry_display = require "telescope.pickers.entry_display"
 local create_find_table = function(annotation)
   local state = require "spring.state"
   local config = state.get_config()
-  
+
   if config and config.cache_mode == "persistent" then
     -- In persistent mode, scan all annotations to avoid data loss
     util.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
