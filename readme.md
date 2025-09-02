@@ -27,7 +27,6 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 ### Cache Management Commands
 
 ```vim
-:Spring SaveCache     " Manually save cache to disk (persistent mode only)
 :Spring ClearCache    " Clear all cached data
 :Spring CacheStatus   " Show current cache status
 ```
@@ -277,7 +276,6 @@ require("spring").setup({
 
 **Cache Management:**
 ```vim
-:SpringSaveCache     " Force save current cache to disk
 :SpringClearCache    " Clear all cache files for current project
 :SpringCacheStatus   " Show detailed cache information
 ```

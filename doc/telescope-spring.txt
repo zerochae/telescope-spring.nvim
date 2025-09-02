@@ -136,7 +136,6 @@ Alternative Commands:~
     :SpringPatchMapping   " Find all PATCH endpoints
 
 Cache Management Commands:~
-    :Spring SaveCache     " Force save cache to disk (persistent mode)
     :Spring ClearCache    " Clear all cached data
     :Spring CacheStatus   " Show detailed cache information
 
@@ -398,11 +397,9 @@ Features:
   • 🗂️ Cache location: `~/.local/share/nvim/telescope-spring/[project-name]/`
 
 Cache Management Commands:~
-    :SpringSaveCache      Force save current cache to disk
     :SpringClearCache     Clear all cache files for current project
     :SpringCacheStatus    Show detailed cache information
     
-    :Spring SaveCache     Same as :SpringSaveCache
     :Spring ClearCache    Same as :SpringClearCache  
     :Spring CacheStatus   Same as :SpringCacheStatus
 

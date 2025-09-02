@@ -25,12 +25,6 @@ vim.api.nvim_create_user_command("SpringPatchMapping", function()
 end, {})
 
 -- Cache management commands
-vim.api.nvim_create_user_command("SpringSaveCache", function()
-  local cache = require "spring.cache"
-  cache.save_to_file()
-  vim.notify("Spring cache saved to disk", vim.log.levels.INFO)
-end, {})
-
 vim.api.nvim_create_user_command("SpringClearCache", function()
   local cache = require "spring.cache"
   cache.clear_persistent_cache()
@@ -47,7 +41,7 @@ vim.api.nvim_create_user_command("Spring", function(opts)
   local spring = require "spring"
   local subcommand = opts.fargs[1]
   if not subcommand then
-    vim.notify("Usage: Spring {Get|Post|Put|Delete|Patch|SaveCache|ClearCache|CacheStatus}", vim.log.levels.WARN)
+    vim.notify("Usage: Spring {Get|Post|Put|Delete|Patch|ClearCache|CacheStatus}", vim.log.levels.WARN)
     return
   end
 
@@ -64,10 +58,6 @@ vim.api.nvim_create_user_command("Spring", function(opts)
     spring.pick_delete_mapping(config.delete or {})
   elseif method == "PATCH" then
     spring.pick_patch_mapping(config.patch or {})
-  elseif method == "SAVECACHE" then
-    local cache = require "spring.cache"
-    cache.save_to_file()
-    vim.notify("Spring cache saved to disk", vim.log.levels.INFO)
   elseif method == "CLEARCACHE" then
     local cache = require "spring.cache"
     cache.clear_persistent_cache()
@@ -79,13 +69,13 @@ vim.api.nvim_create_user_command("Spring", function(opts)
     vim.notify(
       "Unknown method: "
         .. subcommand
-        .. ". Available: Get, Post, Put, Delete, Patch, SaveCache, ClearCache, CacheStatus",
+        .. ". Available: Get, Post, Put, Delete, Patch, ClearCache, CacheStatus",
       vim.log.levels.ERROR
     )
   end
 end, {
   nargs = 1,
   complete = function()
-    return { "Get", "Post", "Put", "Delete", "Patch", "SaveCache", "ClearCache", "CacheStatus" }
+    return { "Get", "Post", "Put", "Delete", "Patch", "ClearCache", "CacheStatus" }
   end,
 })
