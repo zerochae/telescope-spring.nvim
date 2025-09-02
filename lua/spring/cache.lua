@@ -25,7 +25,6 @@ local function get_cache_files()
   return {
     cache_dir = cache_dir,
     find_cache_file = cache_dir .. "/find_cache.lua",
-    preview_cache_file = cache_dir .. "/preview_cache.lua",
     metadata_file = cache_dir .. "/metadata.lua",
   }
 end
@@ -214,12 +213,6 @@ M.save_to_file = function()
     find_file:close()
   end
 
-  -- Save preview table
-  local preview_file = io.open(cache_files.preview_cache_file, "w")
-  if preview_file then
-    preview_file:write("return " .. vim.inspect(spring_preview_table))
-    preview_file:close()
-  end
 
   -- Save metadata
   local meta_file = io.open(cache_files.metadata_file, "w")
@@ -252,13 +245,6 @@ M.load_from_file = function()
     end
   end
 
-  -- Load preview table
-  if file_exists(cache_files.preview_cache_file) then
-    local ok, data = pcall(dofile, cache_files.preview_cache_file)
-    if ok and data then
-      spring_preview_table = data
-    end
-  end
 
   -- Load metadata
   if file_exists(cache_files.metadata_file) then
@@ -283,9 +269,6 @@ M.clear_persistent_cache = function()
   -- Remove cache files
   if file_exists(cache_files.find_cache_file) then
     vim.fn.delete(cache_files.find_cache_file)
-  end
-  if file_exists(cache_files.preview_cache_file) then
-    vim.fn.delete(cache_files.preview_cache_file)
   end
   if file_exists(cache_files.metadata_file) then
     vim.fn.delete(cache_files.metadata_file)
@@ -338,14 +321,12 @@ M.show_cache_status = function()
 
   table.insert(status_lines, "")
   table.insert(status_lines, "Find entries: " .. find_count)
-  table.insert(status_lines, "Preview entries: " .. vim.tbl_count(spring_preview_table))
   table.insert(status_lines, "Cached annotations: " .. table.concat(annotations, ", "))
 
   if cache_config.mode == "persistent" then
     table.insert(status_lines, "")
     table.insert(status_lines, "=== File Cache Status ===")
     table.insert(status_lines, "Find cache: " .. (file_exists(cache_files.find_cache_file) and "✓" or "✗"))
-    table.insert(status_lines, "Preview cache: " .. (file_exists(cache_files.preview_cache_file) and "✓" or "✗"))
     table.insert(status_lines, "Metadata: " .. (file_exists(cache_files.metadata_file) and "✓" or "✗"))
 
     if file_exists(cache_files.metadata_file) then
