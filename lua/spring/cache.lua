@@ -130,12 +130,22 @@ end
 
 M.has_cached_data_for_annotation = function(annotation)
   -- Check if we have data specifically for this annotation
+  local has_data = false
   for _, mapping_object in pairs(spring_find_table) do
     if mapping_object[annotation] then
-      return true
+      has_data = true
+      break
     end
   end
-  return false
+  
+  -- Debug logging
+  local state = require "spring.state"
+  local config = state.get_config()
+  if config and config.debug then
+    print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") = " .. tostring(has_data))
+  end
+  
+  return has_data
 end
 
 M.create_find_table_entry = function(path, annotation)
