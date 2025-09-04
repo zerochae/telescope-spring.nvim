@@ -1,6 +1,5 @@
 local finders = require "telescope.finders"
 local util = require "endpoint.util"
-local enums = require "endpoint.enum"
 local entry_display = require "telescope.pickers.entry_display"
 
 local create_find_table = function(method)

@@ -1,10 +1,29 @@
 local M = {}
 
 local enums = require "endpoint.enum"
-local helper = require "endpoint.helper"
-local parser = require "endpoint.parser"
 local cache = require "endpoint.cache"
 local framework = require "endpoint.framework"
+
+M.run_cmd = function(cmd)
+  local output = vim.fn.system(cmd)
+  local exit_code = vim.v.shell_error
+
+  if exit_code ~= 0 then
+    -- Don't show error for common cases like "no matches found" (exit code 1)
+    if exit_code == 1 then
+      return "" -- Empty result for no matches
+    end
+    -- Exit code 2 usually means invalid regex or command syntax
+    if exit_code == 2 then
+      vim.notify("Invalid search pattern or command syntax in: " .. cmd, vim.log.levels.ERROR)
+      return nil
+    end
+    vim.notify("Command failed: " .. cmd .. " (exit code: " .. exit_code .. ")", vim.log.levels.ERROR)
+    return nil
+  end
+
+  return output
+end
 
 M.get_annotation = function(method)
   local annotation = enums.annotation[method .. "_MAPPING"]
@@ -63,11 +82,6 @@ M.get_find_table = function()
   return cache.get_find_table()
 end
 
--- Legacy Spring-specific functions (DEPRECATED - use framework-agnostic versions above)
-M.set_spring_tables = function()
-  cache.clear_tables()
-end
-
 M.get_spring_preview_table = function()
   return cache.get_preview_table()
 end
@@ -97,22 +111,22 @@ end
 M.create_endpoint_preview_table = function(method)
   local state = require "endpoint.state"
   local config = state.get_config()
-  
+
   -- Detect current framework
   local framework_name = framework.get_current_framework_name(config)
-  
+
   -- For Spring, create preview table from find table (same as other frameworks)
   if framework_name == "spring" then
     -- For Spring, ensure find table exists first by creating endpoint table
     M.create_endpoint_table(method)
   end
-  
+
   -- For other frameworks, create preview table from find table
   local find_table = cache.get_find_table()
   for path, mapping_object in pairs(find_table) do
     local request_mapping_value = M.get_request_mapping_value(path)
-    
-    -- Check for method-specific endpoints  
+
+    -- Check for method-specific endpoints
     local method_key = method .. "_ENDPOINT"
     if mapping_object[method_key] then
       for _, mapping_item in ipairs(mapping_object[method_key]) do
@@ -130,18 +144,18 @@ end
 M.create_endpoint_table = function(method)
   local state = require "endpoint.state"
   local config = state.get_config()
-  
+
   -- Detect current framework
   local framework_name = framework.get_current_framework_name(config)
-  
+
   if config and config.debug then
     print("DEBUG: Using " .. framework_name .. " framework to scan for " .. method .. " endpoints")
   end
-  
+
   -- For Spring, use new framework system but scan all methods due to shared @RequestMapping
   if framework_name == "spring" then
     -- For Spring, we need to scan all methods since @RequestMapping is shared across classes
-    local methods = {"GET", "POST", "PUT", "DELETE", "PATCH"}
+    local methods = { "GET", "POST", "PUT", "DELETE", "PATCH" }
     for _, http_method in ipairs(methods) do
       local success, cmd = pcall(framework.get_grep_cmd, http_method, config)
       if success then
@@ -165,7 +179,7 @@ M.create_endpoint_table = function(method)
     end
     return
   end
-  
+
   -- For other frameworks, use new framework system
   local success, cmd = pcall(framework.get_grep_cmd, method, config)
   if not success then
@@ -199,111 +213,6 @@ M.create_endpoint_table = function(method)
         column = parsed.column,
       }
     end
-  end
-end
-
--- Legacy Spring-specific function (deprecated - use create_endpoint_table instead)
-M.create_spring_find_table = function(annotation)
-  -- Check cache first
-  if cache.should_use_cache(annotation) then
-    local state = require "endpoint.state"
-    local config = state.get_config()
-    if config and config.debug then
-      print("DEBUG: Skipping scan for " .. annotation .. " - cache exists")
-    end
-    return
-  end
-
-  local state = require "endpoint.state"
-  local config = state.get_config()
-  if config and config.debug then
-    print("DEBUG: Scanning for " .. annotation)
-  end
-
-  local success, cmd = pcall(parser.get_grep_cmd, annotation)
-  if not success then
-    vim.notify("Error: " .. cmd, vim.log.levels.ERROR)
-    return
-  end
-
-  local grep_results = helper.run_cmd(cmd)
-  if not grep_results or grep_results == "" then
-    if config and config.debug then
-      print("DEBUG: No results for " .. annotation)
-    end
-    return
-  end
-
-  if config and config.debug then
-    print("DEBUG: Found results for " .. annotation .. " - " .. string.len(grep_results) .. " chars")
-  end
-
-  for line in tostring(grep_results):gmatch "[^\n]+" do
-    if parser.is_mapping_has_option(line) then
-      if parser.is_request_mapping(line) then
-        local path, line_number, column, mapping_value, mapping_method = parser.split_request_mapping(line)
-        if mapping_method == nil then
-          cache.create_find_table_entry(path, enums.annotation.REQUEST_MAPPING)
-          cache.insert_to_find_request_table {
-            path = path,
-            annotation = enums.annotation.REQUEST_MAPPING,
-            value = mapping_value,
-            line_number = line_number,
-            column = column,
-          }
-        else
-          for _, method in ipairs(mapping_method) do
-            local mapping_annotation = M.get_annotation(method)
-            cache.create_find_table_entry(path, mapping_annotation)
-            cache.insert_to_find_table {
-              path = path,
-              annotation = mapping_annotation,
-              value = mapping_value,
-              line_number = line_number,
-              column = column,
-            }
-          end
-        end
-      else
-        local path, line_number, column, mapping_value = parser.split_object_mapping(line)
-        cache.create_find_table_entry(path, annotation)
-        cache.insert_to_find_table {
-          path = path,
-          annotation = annotation,
-          value = mapping_value,
-          line_number = line_number,
-          column = column,
-        }
-      end
-    else
-      local path, line_number, column, value = helper.split(line, ":")
-      cache.create_find_table_entry(path, annotation)
-      if annotation == enums.annotation.REQUEST_MAPPING then
-        cache.insert_to_find_request_table {
-          path = path,
-          annotation = annotation,
-          value = parser.get_mapping_value(value, path),
-          line_number = line_number,
-          column = column,
-        }
-      else
-        cache.insert_to_find_table {
-          path = path,
-          annotation = annotation,
-          value = parser.get_mapping_value(value, path),
-          line_number = line_number,
-          column = column,
-        }
-      end
-    end
-  end
-
-  -- Update cache timestamp
-  cache.update_cache_timestamp(annotation)
-
-  -- Save to file if persistent mode (after all data is collected)
-  if config and config.cache_mode == "persistent" then
-    cache.save_to_file()
   end
 end
 

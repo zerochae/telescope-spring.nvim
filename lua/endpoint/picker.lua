@@ -3,7 +3,6 @@ local endpoint_finder = require "endpoint.finder"
 local endpoint_previewer = require "endpoint.previewer"
 local endpoint_actions = require "endpoint.actions"
 local conf = require("telescope.config").values
-local util = require "endpoint.util"
 
 return function(opts, method)
   opts = opts or {}

@@ -93,12 +93,20 @@ function M.parse_line(line, method, config)
 
   -- Get the controller base path
   local controller_path = M.get_base_path(file_path, line_number)
-  
+
   -- Combine controller path and method path
   local endpoint_path = M.combine_paths(controller_path, method_path)
 
   if config and config.debug then
-    print("DEBUG NestJS: Controller='" .. controller_path .. "', Method='" .. method_path .. "', Combined='" .. endpoint_path .. "'")
+    print(
+      "DEBUG NestJS: Controller='"
+        .. controller_path
+        .. "', Method='"
+        .. method_path
+        .. "', Combined='"
+        .. endpoint_path
+        .. "'"
+    )
   end
 
   return {

@@ -1,7 +1,5 @@
-local enums = require "endpoint.enum"
-
 local M = {
-  prompt_title = enums.default_config.prompt_title,
+  prompt_title = "endpoint finder",
   cache_ttl = 5000, -- Cache time-to-live in milliseconds
   cache_mode = "persistent", -- Cache mode: "time" (uses TTL), "session" (valid until nvim closes), or "persistent" (file-based cache)
   debug = false, -- Enable debug logging
@@ -100,19 +98,19 @@ local M = {
   },
 
   get = {
-    prompt_title = enums.default_config.get_prompt_title,
+    prompt_title = "get endpoints",
   },
   post = {
-    prompt_title = enums.default_config.post_prompt_title,
+    prompt_title = "post endpoints",
   },
   put = {
-    prompt_title = enums.default_config.put_prompt_title,
+    prompt_title = "put endpoints",
   },
   delete = {
-    prompt_title = enums.default_config.delete_prompt_title,
+    prompt_title = "delete endpoints",
   },
   patch = {
-    prompt_title = enums.default_config.patch_prompt_title,
+    prompt_title = "patch endpoints",
   },
 }
 

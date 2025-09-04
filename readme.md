@@ -50,14 +50,6 @@ A powerful Telescope picker for quickly finding and navigating web framework API
 :Telescope endpoint patch  " PATCH endpoints
 ```
 
-### Legacy Spring Commands (Still Supported)
-
-```vim
-:Spring Get               " Find all GET endpoints (legacy)
-:SpringGetMapping         " Find all GET endpoints (legacy)
-:Telescope spring get     " GET endpoints (legacy)
-```
-
 ## 📦 Installation
 
 > **⚠️ Important**: You must call `require("endpoint").setup()` in a `config` function for the plugin to work properly. The `opts` table alone is not sufficient.
@@ -70,7 +62,6 @@ A powerful Telescope picker for quickly finding and navigating web framework API
   dependencies = { "nvim-telescope/telescope.nvim" },
   cmd = {
     "Endpoint",
-    "Spring", -- Legacy support
   },
   config = function()
     require("endpoint").setup({
