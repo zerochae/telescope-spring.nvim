@@ -50,6 +50,20 @@ M.get_request_mapping_line_number = function(path)
   return find_table[path][enums.annotation.REQUEST_MAPPING].line_number
 end
 
+-- Framework-agnostic table management functions
+M.clear_tables = function()
+  cache.clear_tables()
+end
+
+M.get_preview_table = function()
+  return cache.get_preview_table()
+end
+
+M.get_find_table = function()
+  return cache.get_find_table()
+end
+
+-- Legacy Spring-specific functions (DEPRECATED - use framework-agnostic versions above)
 M.set_spring_tables = function()
   cache.clear_tables()
 end

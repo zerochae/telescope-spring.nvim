@@ -15,11 +15,11 @@ local METHOD_TO_DECORATOR = {
 
 -- Method patterns for NestJS
 local PATTERNS = {
-  get = { "@Get\\(" },
-  post = { "@Post\\(" },
-  put = { "@Put\\(" },
-  delete = { "@Delete\\(" },
-  patch = { "@Patch\\(" },
+  get = { "@Get%(" },
+  post = { "@Post%(" },
+  put = { "@Put%(" },
+  delete = { "@Delete%(" },
+  patch = { "@Patch%(" },
 }
 
 -- Get grep command for NestJS endpoints

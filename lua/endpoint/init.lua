@@ -1,7 +1,7 @@
 local M = {}
 
 local default_config = require "endpoint.config"
-local spring_picker = require "endpoint.picker"
+local endpoint_picker = require "endpoint.picker"
 local enums = require "endpoint.enum"
 local state = require "endpoint.state"
 
@@ -18,19 +18,19 @@ end
 -- end
 
 M.pick_get_mapping = function(opts)
-  spring_picker(opts, enums.methods.GET)
+  endpoint_picker(opts, enums.methods.GET)
 end
 M.pick_post_mapping = function(opts)
-  spring_picker(opts, enums.methods.POST)
+  endpoint_picker(opts, enums.methods.POST)
 end
 M.pick_put_mapping = function(opts)
-  spring_picker(opts, enums.methods.PUT)
+  endpoint_picker(opts, enums.methods.PUT)
 end
 M.pick_delete_mapping = function(opts)
-  spring_picker(opts, enums.methods.DELETE)
+  endpoint_picker(opts, enums.methods.DELETE)
 end
 M.pick_patch_mapping = function(opts)
-  spring_picker(opts, enums.methods.PATCH)
+  endpoint_picker(opts, enums.methods.PATCH)
 end
 
 M.setup = function(opts)

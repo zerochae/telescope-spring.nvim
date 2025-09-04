@@ -5,7 +5,7 @@ local util = require "endpoint.util"
 local create_preview_table = function(method)
   -- TODO: Update to use framework-agnostic preview table creation
   -- For now, convert method to annotation for backward compatibility
-  local annotation = "@" .. method:sub(1,1):upper() .. method:sub(2):lower() .. "Mapping"
+  local annotation = "@" .. method:sub(1, 1):upper() .. method:sub(2):lower() .. "Mapping"
   util.create_spring_preview_table(annotation)
 end
 
@@ -13,18 +13,18 @@ return function(method)
   return previewers.new_buffer_previewer {
     define_preview = function(self, entry)
       create_preview_table(method)
-      local spring_preview_table = util.get_spring_preview_table()
+      local preview_table = util.get_preview_table()
       local endpoint = entry.value
 
       -- Check if preview table entry exists
-      if not spring_preview_table[endpoint] then
+      if not preview_table[endpoint] then
         vim.notify("Preview data not found for: " .. tostring(endpoint), vim.log.levels.WARN)
         return
       end
 
-      local path = spring_preview_table[endpoint].path
-      local line_number = spring_preview_table[endpoint].line_number
-      local column = spring_preview_table[endpoint].column
+      local path = preview_table[endpoint].path
+      local line_number = preview_table[endpoint].line_number
+      local column = preview_table[endpoint].column
       entry.path = path
       entry.lnum = line_number
       entry.col = column

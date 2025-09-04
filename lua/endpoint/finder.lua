@@ -96,13 +96,13 @@ return function(method) -- method is HTTP method like 'GET', 'POST', etc.
       -- Create endpoint tables using current framework
       create_find_table(method)
       
-      -- Get results from cache (still using Spring-compatible cache for now)
-      local spring_finder_table = util.get_spring_find_table()
+      -- Get results from cache
+      local finder_table = util.get_find_table()
       local finder_results = {}
 
       -- TODO: Replace this Spring-specific logic with framework-agnostic version
       -- For now, try to work with existing cache structure
-      for path, mapping_object in pairs(spring_finder_table) do
+      for path, mapping_object in pairs(finder_table) do
         local request_mapping_value = util.get_request_mapping_value(path)
         local method_key = method .. "_ENDPOINT"
         

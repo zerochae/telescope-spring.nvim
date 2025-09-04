@@ -1,12 +1,12 @@
 local M = {}
 
 M.default_config = {
-  prompt_title = "spring api finder",
-  get_prompt_title = "get api finder",
-  post_prompt_title = "post api finder",
-  put_prompt_title = "put api finder",
-  delete_prompt_title = "delete api finder",
-  patch_prompt_title = "patch api finder",
+  prompt_title = "endpoint finder",
+  get_prompt_title = "get endpoints",
+  post_prompt_title = "post endpoints",
+  put_prompt_title = "put endpoints",
+  delete_prompt_title = "delete endpoints",
+  patch_prompt_title = "patch endpoints",
 }
 
 M.methods = {
@@ -18,6 +18,8 @@ M.methods = {
   PATCH = "PATCH",
 }
 
+-- Legacy Spring annotations (DEPRECATED - use framework-specific implementations)
+-- These are kept for backward compatibility only
 M.annotation = {
   REQUEST_MAPPING = "@RequestMapping",
   GET_MAPPING = "@GetMapping",
@@ -27,11 +29,13 @@ M.annotation = {
   PATCH_MAPPING = "@PatchMapping",
 }
 
+-- Legacy command constants (DEPRECATED)
 M.cmd = {
   GET_ROOT = "git rev-parse --show-toplevel",
   GREP = "grep",
 }
 
+-- Legacy args constants (DEPRECATED)
 M.args = {
   EXACT = "-E",
   ALL_JAVA_FILE = "/**/*.java",
