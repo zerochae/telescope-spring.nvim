@@ -1,60 +1,66 @@
-# telescope-spring.nvim
+# telescope-endpoint.nvim
 
-A powerful Telescope picker for quickly finding and navigating Spring Boot API endpoints with customizable UI and smart caching.
+A powerful Telescope picker for quickly finding and navigating web framework API endpoints with customizable UI and smart caching.
+
+**Supported Frameworks:**
+- 🍃 Spring Boot (Java)
+- 🐦 NestJS (TypeScript/JavaScript) 
+- 🐍 Django (Python) - Coming soon
+- 💎 Rails (Ruby) - Coming soon
+- ⚡ Express (Node.js) - Coming soon
 
 ## ✨ Features
 
-- 🔍 **Fast Endpoint Discovery**: Quickly find Spring Boot API endpoints by HTTP method
+- 🔍 **Multi-Framework Support**: Automatically detects and supports Spring Boot, NestJS, and more
 - 🎨 **Customizable UI**: Configurable icons, colors, and display options
 - ⚡ **Smart Caching**: Multiple cache modes including persistent disk storage
-- 🔗 **Path Variable Support**: Handles complex path variables and RequestMapping patterns
+- 🔗 **Path Variable Support**: Handles complex path variables and routing patterns
 - 📍 **Precise Navigation**: Jump directly to the exact line with annotation highlighting
-- 🌈 **Syntax Highlighting**: Preview window with Java syntax highlighting
-- 🔧 **Easy Setup**: Just call `require("spring").setup()` to get started
+- 🌈 **Syntax Highlighting**: Preview window with framework-specific syntax highlighting
+- 🤖 **Auto-Detection**: Automatically detects your project's framework
+- 🔧 **Easy Setup**: Just call `require("endpoint").setup()` to get started
 
 ## 🚀 Usage
 
 ### Simple Commands (Recommended)
 
 ```vim
-:Spring Get      " Find all GET endpoints
-:Spring Post     " Find all POST endpoints  
-:Spring Put      " Find all PUT endpoints
-:Spring Delete   " Find all DELETE endpoints
-:Spring Patch    " Find all PATCH endpoints
+:Endpoint Get      " Find all GET endpoints
+:Endpoint Post     " Find all POST endpoints  
+:Endpoint Put      " Find all PUT endpoints
+:Endpoint Delete   " Find all DELETE endpoints
+:Endpoint Patch    " Find all PATCH endpoints
 ```
 
 ### Cache Management Commands
 
 ```vim
-:Spring ClearCache    " Clear all cached data
-:Spring CacheStatus   " Show current cache status
-```
-
-### Alternative Commands
-
-```vim
-:SpringGetMapping     " Find all GET endpoints
-:SpringPostMapping    " Find all POST endpoints  
-:SpringPutMapping     " Find all PUT endpoints
-:SpringDeleteMapping  " Find all DELETE endpoints
-:SpringPatchMapping   " Find all PATCH endpoints
+:Endpoint ClearCache    " Clear all cached data
+:Endpoint CacheStatus   " Show current cache status
 ```
 
 ### Telescope Extension
 
 ```vim
-:Telescope spring        " Default picker
-:Telescope spring get    " GET endpoints
-:Telescope spring post   " POST endpoints
-:Telescope spring put    " PUT endpoints
-:Telescope spring delete " DELETE endpoints
-:Telescope spring patch  " PATCH endpoints
+:Telescope endpoint        " Default picker
+:Telescope endpoint get    " GET endpoints
+:Telescope endpoint post   " POST endpoints
+:Telescope endpoint put    " PUT endpoints
+:Telescope endpoint delete " DELETE endpoints
+:Telescope endpoint patch  " PATCH endpoints
+```
+
+### Legacy Spring Commands (Still Supported)
+
+```vim
+:Spring Get               " Find all GET endpoints (legacy)
+:SpringGetMapping         " Find all GET endpoints (legacy)
+:Telescope spring get     " GET endpoints (legacy)
 ```
 
 ## 📦 Installation
 
-> **⚠️ Important**: You must call `require("spring").setup()` in a `config` function for the plugin to work properly. The `opts` table alone is not sufficient.
+> **⚠️ Important**: You must call `require("endpoint").setup()` in a `config` function for the plugin to work properly. The `opts` table alone is not sufficient.
 
 ### lazy.nvim
 
@@ -63,16 +69,21 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
   "zerochae/telescope-spring.nvim",
   dependencies = { "nvim-telescope/telescope.nvim" },
   cmd = {
-    "Spring",
-    "SpringGetMapping",
-    "SpringPostMapping",
-    "SpringPutMapping", 
-    "SpringDeleteMapping",
-    "SpringPatchMapping",
+    "Endpoint",
+    "Spring", -- Legacy support
   },
   config = function()
-    require("spring").setup({
-      -- Optional: customize settings
+    require("endpoint").setup({
+      -- Framework configuration
+      framework = "auto", -- "auto", "spring", "nestjs", "django", "rails", "express"
+      
+      -- Optional: Path-based framework overrides
+      framework_paths = {
+        ["/path/to/spring/project"] = "spring",
+        ["/path/to/nestjs/project"] = "nestjs",
+      },
+      
+      -- Cache configuration
       cache_ttl = 5000, -- Cache time in milliseconds (time/session modes)
       cache_mode = "time", -- Cache mode: "time", "session", or "persistent"
       debug = false, -- Enable debug logging
@@ -104,27 +115,15 @@ A powerful Telescope picker for quickly finding and navigating Spring Boot API e
 }
 ```
 
-### lazy.nvim
+### Minimal Setup
 
 ```lua
 {
   "zerochae/telescope-spring.nvim",
   dependencies = { "nvim-telescope/telescope.nvim" },
-  cmd = {
-    "Spring",
-    "SpringGetMapping",
-    "SpringPostMapping",
-    "SpringPutMapping", 
-    "SpringDeleteMapping",
-    "SpringPatchMapping",
-  },
+  cmd = { "Endpoint", "Spring" },
   config = function()
-    require("spring").setup({
-      ui = {
-        show_icons = true,
-        show_method = true,
-      },
-    })
+    require("endpoint").setup()
   end,
 }
 ```
@@ -136,7 +135,7 @@ use {
   "zerochae/telescope-spring.nvim",
   requires = { "nvim-telescope/telescope.nvim" },
   config = function()
-    require("spring").setup() -- This is required!
+    require("endpoint").setup() -- This is required!
   end,
 }
 ```
@@ -146,15 +145,15 @@ use {
 ### Default Configuration
 
 ```lua
-require("spring").setup({
+require("endpoint").setup({
+  -- Framework configuration
+  framework = "auto",                       -- "auto", "spring", "nestjs", "django", "rails", "express"
+  framework_paths = {},                     -- Path-based framework overrides
+  
+  -- Cache configuration
   cache_ttl = 5000,                         -- Cache TTL in milliseconds (time/session modes)
   cache_mode = "time",                      -- Cache mode: "time", "session", or "persistent"
   debug = false,                            -- Enable debug logging
-  file_patterns = { "**/*.java" },          -- File patterns to search
-  exclude_patterns = {                      -- Patterns to exclude
-    "**/target/**", 
-    "**/build/**" 
-  },
   
   ui = {
     show_icons = false,                     -- Show method icons
@@ -261,7 +260,7 @@ The plugin includes an intelligent caching system with three modes:
 The persistent cache mode offers the best performance for large projects:
 
 ```lua
-require("spring").setup({
+require("endpoint").setup({
   cache_mode = "persistent",
   debug = false, -- Set to true for troubleshooting
 })
@@ -276,23 +275,23 @@ require("spring").setup({
 
 **Cache Management:**
 ```vim
-:SpringClearCache    " Clear all cache files for current project
-:SpringCacheStatus   " Show detailed cache information
+:Endpoint ClearCache    " Clear all cache files for current project
+:Endpoint CacheStatus   " Show detailed cache information
 ```
 
 **Cache Files Structure:**
 ```
-~/.local/share/nvim/telescope-spring/my-project/
+~/.local/share/nvim/telescope-endpoint/my-project/
 ├── find_cache.lua    " Endpoint data (paths, methods, locations)
 └── metadata.lua      " Scan history and project metadata
 ```
 
 **When to use persistent mode:**
-- ✅ Large Spring Boot projects with many controllers
+- ✅ Large projects with many API endpoints
 - ✅ Frequent nvim restarts during development
 - ✅ Want maximum performance after initial scan
 - ❌ Small projects (overhead not worth it)
-- ❌ Controllers change very frequently
+- ❌ API endpoints change very frequently
 
 ### Custom File Patterns
 
@@ -319,6 +318,16 @@ Customize which files to search:
 ### Search Variable Values  
 ![Search in variable path](https://github.com/zerochae/telescope-spring.nvim/assets/84373490/3622ea76-096a-4eb4-8e49-c328798fbbb7)
 
+## 🌍 Framework Support Status
+
+| Framework | Status | Endpoint Patterns | Auto-Detection |
+|-----------|--------|------------------|----------------|
+| Spring Boot | ✅ Stable | `@GetMapping`, `@PostMapping`, `@RequestMapping` | `pom.xml`, `*.gradle` |
+| NestJS | ✅ Stable | `@Get()`, `@Post()`, `@Controller()` | `package.json` + NestJS deps |
+| Django | 🚧 Coming Soon | `path()`, `@api_view` | `manage.py`, Django in requirements |
+| Rails | 🚧 Coming Soon | `get`, `post`, `resources` | `Gemfile` + Rails gem |
+| Express | 🚧 Coming Soon | `app.get()`, `router.post()` | `package.json` + Express deps |
+
 ## ⚡️ Requirements
 
 - [Neovim](https://neovim.io/) >= 0.8.0
@@ -329,6 +338,73 @@ Customize which files to search:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## 🔄 Migration from telescope-spring.nvim
+
+If you're upgrading from the Spring-only version:
+
+1. **Update your setup call**:
+   ```lua
+   -- Old
+   require("spring").setup()
+   
+   -- New
+   require("endpoint").setup()
+   ```
+
+2. **Update commands** (optional - old commands still work):
+   ```vim
+   " Old
+   :Spring Get
+   
+   " New (recommended)
+   :Endpoint Get
+   ```
+
+3. **Update Telescope extension**:
+   ```vim
+   " Old
+   :Telescope spring get
+   
+   " New
+   :Telescope endpoint get
+   ```
+
+All your existing configuration and cache will continue to work!
+
+### Framework-Specific Configuration
+
+The plugin automatically detects your framework, but you can override detection:
+
+```lua
+require("endpoint").setup({
+  -- Explicit framework selection
+  framework = "spring", -- or "nestjs", "django", "rails", "express"
+  
+  -- Path-based framework overrides (useful for monorepos)
+  framework_paths = {
+    ["/home/user/spring-project"] = "spring",
+    ["/home/user/nestjs-api"] = "nestjs",
+    ["/home/user/django-app"] = "django",
+  },
+  
+  debug = true, -- Enable to see framework detection logs
+})
+```
+
+### Framework Detection
+
+The plugin uses these files to detect your framework:
+
+- **Spring Boot**: `pom.xml`, `build.gradle`, `build.gradle.kts`
+- **NestJS**: `package.json` (with @nestjs dependencies)
+- **Django**: `manage.py`, `requirements.txt` (with Django)
+- **Rails**: `Gemfile` (with Rails gem)
+- **Express**: `package.json` (with Express dependencies)
+
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+## ⭐ Star History
+
+If this plugin helps you, please consider giving it a star! ✨

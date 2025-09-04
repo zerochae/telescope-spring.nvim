@@ -101,17 +101,10 @@ M.create_endpoint_preview_table = function(method)
   -- Detect current framework
   local framework_name = framework.get_current_framework_name(config)
   
-  -- For Spring, use existing annotation-based preview creation for compatibility
+  -- For Spring, create preview table from find table (same as other frameworks)
   if framework_name == "spring" then
-    -- Always scan @RequestMapping first to get class-level paths
-    M.create_spring_preview_table(enums.annotation.REQUEST_MAPPING)
-    
-    -- Then scan the specific method mapping for preview
-    local annotation = enums.annotation[method .. "_MAPPING"]
-    if annotation then
-      M.create_spring_preview_table(annotation)
-      return
-    end
+    -- For Spring, ensure find table exists first by creating endpoint table
+    M.create_endpoint_table(method)
   end
   
   -- For other frameworks, create preview table from find table
@@ -145,17 +138,32 @@ M.create_endpoint_table = function(method)
     print("DEBUG: Using " .. framework_name .. " framework to scan for " .. method .. " endpoints")
   end
   
-  -- For Spring, use existing annotation-based system for compatibility
+  -- For Spring, use new framework system but scan all methods due to shared @RequestMapping
   if framework_name == "spring" then
-    -- Always scan @RequestMapping first to get class-level paths
-    M.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
-    
-    -- Then scan the specific method mapping
-    local annotation = enums.annotation[method .. "_MAPPING"]
-    if annotation then
-      M.create_spring_find_table(annotation)
-      return
+    -- For Spring, we need to scan all methods since @RequestMapping is shared across classes
+    local methods = {"GET", "POST", "PUT", "DELETE", "PATCH"}
+    for _, http_method in ipairs(methods) do
+      local success, cmd = pcall(framework.get_grep_cmd, http_method, config)
+      if success then
+        local grep_results = helper.run_cmd(cmd)
+        if grep_results and grep_results ~= "" then
+          for line in tostring(grep_results):gmatch "[^\n]+" do
+            local parsed = framework.parse_line(line, http_method, config)
+            if parsed then
+              cache.create_find_table_entry(parsed.file_path, http_method .. "_ENDPOINT")
+              cache.insert_to_find_table {
+                path = parsed.file_path,
+                annotation = http_method .. "_ENDPOINT",
+                value = parsed.endpoint_path,
+                line_number = parsed.line_number,
+                column = parsed.column,
+              }
+            end
+          end
+        end
+      end
     end
+    return
   end
   
   -- For other frameworks, use new framework system

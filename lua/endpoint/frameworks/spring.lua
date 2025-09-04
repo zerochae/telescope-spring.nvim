@@ -33,10 +33,9 @@ function M.get_grep_cmd(method, config)
   local exclude_patterns = M.get_exclude_patterns()
 
   local cmd = "rg"
-  cmd = cmd .. " --type-add 'custom:" .. table.concat(file_patterns, ",") .. "'"
-  cmd = cmd .. " --type custom"
   cmd = cmd .. " --line-number --column --no-heading --color=never"
   cmd = cmd .. " --case-sensitive"
+  cmd = cmd .. " --type java"
 
   -- Add exclude patterns
   for _, pattern in ipairs(exclude_patterns) do
