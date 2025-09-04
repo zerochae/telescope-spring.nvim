@@ -5,7 +5,7 @@ local util = require "endpoint.util"
 local create_preview_table = function(method)
   -- TODO: Update to use framework-agnostic preview table creation
   -- For now, convert method to annotation for backward compatibility
-  local annotation = \"@\" .. method:sub(1,1):upper() .. method:sub(2):lower() .. \"Mapping\"
+  local annotation = "@" .. method:sub(1,1):upper() .. method:sub(2):lower() .. "Mapping"
   util.create_spring_preview_table(annotation)
 end
 

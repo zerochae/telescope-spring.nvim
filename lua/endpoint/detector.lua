@@ -28,25 +28,25 @@ local function detect_nodejs_framework(root_path)
   if not file_exists(package_json_path) then
     return nil
   end
-  
+
   -- Read package.json and check dependencies
   local ok, package_content = pcall(vim.fn.readfile, package_json_path)
   if not ok then
     return nil
   end
-  
+
   local content_str = table.concat(package_content, "\n")
-  
+
   -- Check for NestJS dependencies
-  if content_str:match("@nestjs/") then
+  if content_str:match "@nestjs/" then
     return "nestjs"
   end
-  
+
   -- Check for Express dependencies
-  if content_str:match('"express"') then
+  if content_str:match '"express"' then
     return "express"
   end
-  
+
   return nil
 end
 
@@ -67,7 +67,7 @@ local function auto_detect_framework(root_path, frameworks_config)
       end
     end
   end
-  
+
   -- If no framework detected, default to spring for backward compatibility
   return "spring"
 end
@@ -94,18 +94,21 @@ end
 -- Main function to detect the current framework
 function M.detect_framework(config)
   local root_path = get_project_root()
-  
+
   -- First check framework_paths for explicit overrides
   if config.framework_paths and next(config.framework_paths) then
     local override_framework = check_framework_paths(root_path, config.framework_paths)
     if override_framework then
       if config.debug then
-        vim.notify("Framework override detected: " .. override_framework .. " for path: " .. root_path, vim.log.levels.INFO)
+        vim.notify(
+          "Framework override detected: " .. override_framework .. " for path: " .. root_path,
+          vim.log.levels.INFO
+        )
       end
       return override_framework
     end
   end
-  
+
   -- If framework is explicitly set (not "auto"), use it
   if config.framework and config.framework ~= "auto" then
     if config.debug then
@@ -113,14 +116,14 @@ function M.detect_framework(config)
     end
     return config.framework
   end
-  
+
   -- Auto-detect framework
   local detected_framework = auto_detect_framework(root_path, config.frameworks)
-  
+
   if config.debug then
     vim.notify("Auto-detected framework: " .. detected_framework .. " for project: " .. root_path, vim.log.levels.INFO)
   end
-  
+
   return detected_framework
 end
 
@@ -134,7 +137,7 @@ function M.get_framework_config(config, framework_name)
     end
     framework_config = config.frameworks.spring
   end
-  
+
   return framework_config
 end
 
@@ -142,8 +145,9 @@ end
 function M.get_current_framework_config(config)
   local framework_name = M.detect_framework(config)
   local framework_config = M.get_framework_config(config, framework_name)
-  
+
   return framework_name, framework_config
 end
 
 return M
+

@@ -66,6 +66,21 @@ M.setup = function(opts)
       vim.notify("Warning: show_method must be a boolean", vim.log.levels.WARN)
     end
   end
+
+  -- Validate framework configuration
+  if opts.framework and type(opts.framework) ~= "string" then
+    vim.notify("Warning: framework must be a string", vim.log.levels.WARN)
+  end
+
+  if opts.framework_paths and type(opts.framework_paths) ~= "table" then
+    vim.notify("Warning: framework_paths must be a table", vim.log.levels.WARN)
+  end
+
+  -- Validate supported frameworks
+  local supported_frameworks = { "auto", "spring", "nestjs", "django", "rails", "express" }
+  if opts.framework and not vim.tbl_contains(supported_frameworks, opts.framework) then
+    vim.notify("Warning: Unsupported framework '" .. opts.framework .. "'. Supported: " .. table.concat(supported_frameworks, ", "), vim.log.levels.WARN)
+  end
 end
 
 return M

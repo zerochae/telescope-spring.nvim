@@ -5,11 +5,11 @@ local M = {
   cache_ttl = 5000, -- Cache time-to-live in milliseconds
   cache_mode = "persistent", -- Cache mode: "time" (uses TTL), "session" (valid until nvim closes), or "persistent" (file-based cache)
   debug = false, -- Enable debug logging
-  
+
   -- Framework detection
   framework = "auto", -- "auto" for auto-detection, or specify: "spring", "nestjs", "django", "rails", "express"
   framework_paths = {}, -- Path-specific framework overrides: { ["/path/to/project"] = "spring" }
-  
+
   -- Framework-specific configurations
   frameworks = {
     spring = {

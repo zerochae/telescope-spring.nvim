@@ -217,4 +217,3 @@ function M.is_http_method_decorator(line)
 end
 
 return M
-

@@ -136,14 +136,14 @@ M.has_cached_data_for_annotation = function(annotation)
   local cache_config = get_cache_config()
   if cache_config.mode == "persistent" then
     local was_scanned = scanned_annotations[annotation] ~= nil
-    
+
     -- Debug logging
     local state = require "endpoint.state"
     local config = state.get_config()
     if config and config.debug then
       print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") - was_scanned = " .. tostring(was_scanned))
     end
-    
+
     return was_scanned
   end
 
@@ -213,7 +213,6 @@ M.save_to_file = function()
     find_file:close()
   end
 
-
   -- Save metadata
   local meta_file = io.open(cache_files.metadata_file, "w")
   if meta_file then
@@ -244,7 +243,6 @@ M.load_from_file = function()
       spring_find_table = data
     end
   end
-
 
   -- Load metadata
   if file_exists(cache_files.metadata_file) then
