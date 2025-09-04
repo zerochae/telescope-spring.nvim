@@ -35,7 +35,7 @@ function M.get_grep_cmd(method, config)
   local cmd = "rg"
   cmd = cmd .. " --line-number --column --no-heading --color=never"
   cmd = cmd .. " --case-sensitive"
-  cmd = cmd .. " --type java"
+  cmd = cmd .. " --type java" -- Use built-in Java type for better performance
 
   -- Add exclude patterns
   for _, pattern in ipairs(exclude_patterns) do
@@ -47,14 +47,14 @@ function M.get_grep_cmd(method, config)
     cmd = cmd .. " " .. config.rg_additional_args
   end
 
-  -- Search for the annotation
+  -- Search for the annotation - simplified pattern for speed
   cmd = cmd .. " '" .. annotation .. "'"
 
   return cmd
 end
 
 -- Parse Spring Boot annotation line
-function M.parse_line(line, method)
+function M.parse_line(line, method, config)
   -- Spring Boot line format: "filepath:line:column:content"
   local parts = {}
   local count = 0

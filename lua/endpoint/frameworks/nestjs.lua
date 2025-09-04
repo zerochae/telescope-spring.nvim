@@ -29,14 +29,12 @@ function M.get_grep_cmd(method, config)
     error("Unsupported HTTP method: " .. method)
   end
 
-  local file_patterns = M.get_file_patterns()
   local exclude_patterns = M.get_exclude_patterns()
 
   local cmd = "rg"
-  cmd = cmd .. " --type-add 'custom:" .. table.concat(file_patterns, ",") .. "'"
-  cmd = cmd .. " --type custom"
   cmd = cmd .. " --line-number --column --no-heading --color=never"
   cmd = cmd .. " --case-sensitive"
+  cmd = cmd .. " --type typescript" -- Use built-in TypeScript type for better performance
 
   -- Add exclude patterns
   for _, pattern in ipairs(exclude_patterns) do
@@ -48,14 +46,14 @@ function M.get_grep_cmd(method, config)
     cmd = cmd .. " " .. config.rg_additional_args
   end
 
-  -- Search for the decorator with parentheses
-  cmd = cmd .. " '" .. decorator .. "\\('"
+  -- Search for the decorator with parentheses - simplified pattern for speed
+  cmd = cmd .. " '" .. decorator .. "'"
 
   return cmd
 end
 
 -- Parse NestJS decorator line
-function M.parse_line(line, method)
+function M.parse_line(line, method, config)
   -- NestJS line format: "filepath:line:column:content"
   local parts = {}
   local count = 0
@@ -83,18 +81,24 @@ function M.parse_line(line, method)
     return nil
   end
 
-  -- Parse the endpoint path from the decorator
-  local endpoint_path = ""
+  -- Parse the method path from the decorator
+  local method_path = ""
 
-  -- Look for path inside parentheses: @Get('/api/users') or @Get('api/users')
+  -- Look for path inside parentheses: @Get('/api/users') or @Get('api/users') or @Get(':id')
   local path_pattern = content:match "@%w+%s*%(%s*['\"]([^'\"]*)['\"]" or ""
 
   if path_pattern then
-    endpoint_path = path_pattern
-    -- Ensure path starts with /
-    if not endpoint_path:match "^/" and endpoint_path ~= "" then
-      endpoint_path = "/" .. endpoint_path
-    end
+    method_path = path_pattern
+  end
+
+  -- Get the controller base path
+  local controller_path = M.get_base_path(file_path, line_number)
+  
+  -- Combine controller path and method path
+  local endpoint_path = M.combine_paths(controller_path, method_path)
+
+  if config and config.debug then
+    print("DEBUG NestJS: Controller='" .. controller_path .. "', Method='" .. method_path .. "', Combined='" .. endpoint_path .. "'")
   end
 
   return {
@@ -134,6 +138,40 @@ end
 -- Get exclude patterns for NestJS
 function M.get_exclude_patterns()
   return { "**/node_modules/**", "**/dist/**", "**/build/**" }
+end
+
+-- Combine controller path and method path into full endpoint path
+function M.combine_paths(controller_path, method_path)
+  -- Handle empty cases
+  if not controller_path or controller_path == "" then
+    controller_path = ""
+  end
+  if not method_path or method_path == "" then
+    method_path = ""
+  end
+
+  -- Ensure controller path starts with / if not empty
+  if controller_path ~= "" and not controller_path:match "^/" then
+    controller_path = "/" .. controller_path
+  end
+
+  -- Ensure method path starts with / if not empty
+  if method_path ~= "" and not method_path:match "^/" then
+    method_path = "/" .. method_path
+  end
+
+  -- Combine paths
+  local combined = controller_path .. method_path
+
+  -- Clean up double slashes and ensure it starts with /
+  combined = combined:gsub("//+", "/")
+  if combined == "" then
+    combined = "/"
+  elseif not combined:match "^/" then
+    combined = "/" .. combined
+  end
+
+  return combined
 end
 
 -- Extract base path from @Controller decorator
