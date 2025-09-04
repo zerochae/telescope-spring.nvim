@@ -1,6 +1,6 @@
 local actions = require "telescope.actions"
 local action_state = require "telescope.actions.state"
-local util = require "spring.util"
+local util = require "endpoint.util"
 
 return function(prompt_bufnr)
   actions.select_default:replace(function()

@@ -1,6 +1,6 @@
 local previewers = require "telescope.previewers"
 local conf = require("telescope.config").values
-local util = require "spring.util"
+local util = require "endpoint.util"
 
 local create_preview_table = function(annotation)
   util.create_spring_preview_table(annotation)

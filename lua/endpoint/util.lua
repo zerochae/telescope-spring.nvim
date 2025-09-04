@@ -1,9 +1,9 @@
 local M = {}
 
-local enums = require "spring.enum"
-local helper = require "spring.helper"
-local parser = require "spring.parser"
-local cache = require "spring.cache"
+local enums = require "endpoint.enum"
+local helper = require "endpoint.helper"
+local parser = require "endpoint.parser"
+local cache = require "endpoint.cache"
 
 M.get_annotation = function(method)
   local annotation = enums.annotation[method .. "_MAPPING"]
@@ -81,7 +81,7 @@ end
 M.create_spring_find_table = function(annotation)
   -- Check cache first
   if cache.should_use_cache(annotation) then
-    local state = require "spring.state"
+    local state = require "endpoint.state"
     local config = state.get_config()
     if config and config.debug then
       print("DEBUG: Skipping scan for " .. annotation .. " - cache exists")
@@ -89,7 +89,7 @@ M.create_spring_find_table = function(annotation)
     return
   end
 
-  local state = require "spring.state"
+  local state = require "endpoint.state"
   local config = state.get_config()
   if config and config.debug then
     print("DEBUG: Scanning for " .. annotation)

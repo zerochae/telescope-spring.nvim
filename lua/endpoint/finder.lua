@@ -1,10 +1,10 @@
 local finders = require "telescope.finders"
-local util = require "spring.util"
-local enums = require "spring.enum"
+local util = require "endpoint.util"
+local enums = require "endpoint.enum"
 local entry_display = require "telescope.pickers.entry_display"
 
 local create_find_table = function(annotation)
-  local state = require "spring.state"
+  local state = require "endpoint.state"
   local config = state.get_config()
 
   if config and config.cache_mode == "persistent" then
@@ -23,15 +23,15 @@ local create_find_table = function(annotation)
 end
 
 local get_method_color = function(method)
-  local spring = require "spring"
-  local config = spring.get_config()
+  local endpoint = require "endpoint"
+  local config = endpoint.get_config()
   local colors = config.ui.method_colors
   return colors[method] or "TelescopeResultsIdentifier"
 end
 
 local get_method_icon = function(method)
-  local spring = require "spring"
-  local config = spring.get_config()
+  local endpoint = require "endpoint"
+  local config = endpoint.get_config()
   if not config.ui.show_icons then
     return ""
   end
@@ -40,8 +40,8 @@ local get_method_icon = function(method)
 end
 
 local get_method_text = function(method)
-  local spring = require "spring"
-  local config = spring.get_config()
+  local endpoint = require "endpoint"
+  local config = endpoint.get_config()
   if not config.ui.show_method then
     return ""
   end

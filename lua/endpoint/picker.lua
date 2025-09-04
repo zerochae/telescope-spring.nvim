@@ -1,9 +1,9 @@
 local pickers = require "telescope.pickers"
-local spring_finder = require "spring.finder"
-local spring_previewer = require "spring.previewer"
-local spring_actions = require "spring.actions"
+local spring_finder = require "endpoint.finder"
+local spring_previewer = require "endpoint.previewer"
+local spring_actions = require "endpoint.actions"
 local conf = require("telescope.config").values
-local util = require "spring.util"
+local util = require "endpoint.util"
 
 return function(opts, method)
   opts = opts or {}

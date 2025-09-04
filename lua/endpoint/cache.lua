@@ -29,12 +29,12 @@ local function get_cache_files()
   }
 end
 local get_cache_config = function()
-  local state = require "spring.state"
+  local state = require "endpoint.state"
   local config = state.get_config()
 
   if not config then
     -- Fallback to default config if state is not initialized
-    local default_config = require "spring.config"
+    local default_config = require "endpoint.config"
     return {
       ttl = default_config.cache_ttl or 5000,
       mode = default_config.cache_mode or "time",
@@ -138,7 +138,7 @@ M.has_cached_data_for_annotation = function(annotation)
     local was_scanned = scanned_annotations[annotation] ~= nil
     
     -- Debug logging
-    local state = require "spring.state"
+    local state = require "endpoint.state"
     local config = state.get_config()
     if config and config.debug then
       print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") - was_scanned = " .. tostring(was_scanned))
@@ -157,7 +157,7 @@ M.has_cached_data_for_annotation = function(annotation)
   end
 
   -- Debug logging
-  local state = require "spring.state"
+  local state = require "endpoint.state"
   local config = state.get_config()
   if config and config.debug then
     print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") = " .. tostring(has_data))

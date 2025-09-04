@@ -1,7 +1,7 @@
 local M = {}
 
-local enums = require "spring.enum"
-local helper = require "spring.helper"
+local enums = require "endpoint.enum"
+local helper = require "endpoint.helper"
 
 local PATTERNS = {
   REQUEST_MAPPING_VALUE = '@(.-)%("%s*(/.-)"%)',

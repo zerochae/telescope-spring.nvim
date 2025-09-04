@@ -1,9 +1,9 @@
 local M = {}
 
-local default_config = require "spring.config"
-local spring_picker = require "spring.picker"
-local enums = require "spring.enum"
-local state = require "spring.state"
+local default_config = require "endpoint.config"
+local spring_picker = require "endpoint.picker"
+local enums = require "endpoint.enum"
+local state = require "endpoint.state"
 
 -- Global config that will be used throughout the plugin
 M.config = vim.deepcopy(default_config)
