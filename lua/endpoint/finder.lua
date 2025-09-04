@@ -3,22 +3,20 @@ local util = require "endpoint.util"
 local enums = require "endpoint.enum"
 local entry_display = require "telescope.pickers.entry_display"
 
-local create_find_table = function(annotation)
+local create_find_table = function(method)
   local state = require "endpoint.state"
   local config = state.get_config()
 
   if config and config.cache_mode == "persistent" then
-    -- In persistent mode, scan all annotations to avoid data loss
-    util.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
-    util.create_spring_find_table(enums.annotation.GET_MAPPING)
-    util.create_spring_find_table(enums.annotation.POST_MAPPING)
-    util.create_spring_find_table(enums.annotation.PUT_MAPPING)
-    util.create_spring_find_table(enums.annotation.DELETE_MAPPING)
-    util.create_spring_find_table(enums.annotation.PATCH_MAPPING)
+    -- In persistent mode, scan all HTTP methods to avoid data loss
+    util.create_endpoint_table("GET")
+    util.create_endpoint_table("POST")
+    util.create_endpoint_table("PUT")
+    util.create_endpoint_table("DELETE")
+    util.create_endpoint_table("PATCH")
   else
-    -- In time/session mode, scan only needed annotations
-    util.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
-    util.create_spring_find_table(annotation)
+    -- In time/session mode, scan only needed method
+    util.create_endpoint_table(method)
   end
 end
 
@@ -48,7 +46,7 @@ local get_method_text = function(method)
   return method
 end
 
-return function(annotation)
+return function(method) -- method is HTTP method like 'GET', 'POST', etc.
   return finders.new_table {
     entry_maker = function(entry)
       local method = entry.method
@@ -95,14 +93,35 @@ return function(annotation)
       }
     end,
     results = (function()
-      create_find_table(annotation)
+      -- Create endpoint tables using current framework
+      create_find_table(method)
+      
+      -- Get results from cache (still using Spring-compatible cache for now)
       local spring_finder_table = util.get_spring_find_table()
       local finder_results = {}
 
+      -- TODO: Replace this Spring-specific logic with framework-agnostic version
+      -- For now, try to work with existing cache structure
       for path, mapping_object in pairs(spring_finder_table) do
         local request_mapping_value = util.get_request_mapping_value(path)
+        local method_key = method .. "_ENDPOINT"
+        
+        -- Check for method-specific endpoints
+        if mapping_object[method_key] then
+          for _, mapping_item in ipairs(mapping_object[method_key]) do
+            local method_mapping_value = mapping_item.value or ""
+            local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
+            table.insert(finder_results, {
+              value = endpoint,
+              method = method,
+              path = request_mapping_value .. method_mapping_value,
+            })
+          end
+        end
+        
+        -- Also check Spring annotations for backward compatibility
+        local annotation = "@" .. method:sub(1,1):upper() .. method:sub(2):lower() .. "Mapping"
         if mapping_object[annotation] then
-          local method = util.get_method(annotation)
           for _, mapping_item in ipairs(mapping_object[annotation]) do
             local method_mapping_value = mapping_item.value or ""
             local endpoint = method .. " " .. request_mapping_value .. method_mapping_value

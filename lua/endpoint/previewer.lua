@@ -2,14 +2,17 @@ local previewers = require "telescope.previewers"
 local conf = require("telescope.config").values
 local util = require "endpoint.util"
 
-local create_preview_table = function(annotation)
+local create_preview_table = function(method)
+  -- TODO: Update to use framework-agnostic preview table creation
+  -- For now, convert method to annotation for backward compatibility
+  local annotation = \"@\" .. method:sub(1,1):upper() .. method:sub(2):lower() .. \"Mapping\"
   util.create_spring_preview_table(annotation)
 end
 
-return function(annotation)
+return function(method)
   return previewers.new_buffer_previewer {
     define_preview = function(self, entry)
-      create_preview_table(annotation)
+      create_preview_table(method)
       local spring_preview_table = util.get_spring_preview_table()
       local endpoint = entry.value
 

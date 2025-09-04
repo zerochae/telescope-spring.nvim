@@ -4,6 +4,7 @@ local enums = require "endpoint.enum"
 local helper = require "endpoint.helper"
 local parser = require "endpoint.parser"
 local cache = require "endpoint.cache"
+local framework = require "endpoint.framework"
 
 M.get_annotation = function(method)
   local annotation = enums.annotation[method .. "_MAPPING"]
@@ -78,6 +79,53 @@ M.create_spring_preview_table = function(annotation)
   end
 end
 
+-- Create endpoint table using current framework (new framework-agnostic version)
+M.create_endpoint_table = function(method)
+  local state = require "endpoint.state"
+  local config = state.get_config()
+
+  if config and config.debug then
+    print("DEBUG: Scanning for " .. method .. " endpoints")
+  end
+
+  -- Get grep command from current framework
+  local success, cmd = pcall(framework.get_grep_cmd, method, config)
+  if not success then
+    vim.notify("Error: " .. cmd, vim.log.levels.ERROR)
+    return
+  end
+
+  local grep_results = helper.run_cmd(cmd)
+  if not grep_results or grep_results == "" then
+    if config and config.debug then
+      print("DEBUG: No results for " .. method)
+    end
+    return
+  end
+
+  if config and config.debug then
+    print("DEBUG: Found results for " .. method .. " - " .. string.len(grep_results) .. " chars")
+  end
+
+  -- Parse results using current framework
+  for line in tostring(grep_results):gmatch "[^\n]+" do
+    local parsed = framework.parse_line(line, method, config)
+    if parsed then
+      -- Store in cache using the parsed information
+      local endpoint_key = parsed.file_path .. ":" .. parsed.line_number
+      cache.create_find_table_entry(parsed.file_path, method .. "_ENDPOINT")
+      cache.insert_to_find_table {
+        path = parsed.file_path,
+        annotation = method .. "_ENDPOINT",
+        value = parsed.endpoint_path,
+        line_number = parsed.line_number,
+        column = parsed.column,
+      }
+    end
+  end
+end
+
+-- Legacy Spring-specific function (deprecated - use create_endpoint_table instead)
 M.create_spring_find_table = function(annotation)
   -- Check cache first
   if cache.should_use_cache(annotation) then
