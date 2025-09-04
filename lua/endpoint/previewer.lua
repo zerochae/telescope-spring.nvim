@@ -3,10 +3,8 @@ local conf = require("telescope.config").values
 local util = require "endpoint.util"
 
 local create_preview_table = function(method)
-  -- TODO: Update to use framework-agnostic preview table creation
-  -- For now, convert method to annotation for backward compatibility
-  local annotation = "@" .. method:sub(1, 1):upper() .. method:sub(2):lower() .. "Mapping"
-  util.create_spring_preview_table(annotation) -- TODO: Replace with framework-agnostic version
+  -- Use new framework-agnostic preview table creation
+  util.create_endpoint_preview_table(method)
 end
 
 return function(method)

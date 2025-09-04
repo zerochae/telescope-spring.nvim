@@ -93,16 +93,64 @@ M.create_spring_preview_table = function(annotation)
   end
 end
 
+-- Create preview table using current framework (new framework-agnostic version)
+M.create_endpoint_preview_table = function(method)
+  local state = require "endpoint.state"
+  local config = state.get_config()
+  
+  -- Detect current framework
+  local framework_name = framework.get_current_framework_name(config)
+  
+  -- For Spring, use existing annotation-based preview creation for compatibility
+  if framework_name == "spring" then
+    local annotation = enums.annotation[method .. "_MAPPING"]
+    if annotation then
+      M.create_spring_preview_table(annotation)
+      return
+    end
+  end
+  
+  -- For other frameworks, create preview table from find table
+  local find_table = cache.get_find_table()
+  for path, mapping_object in pairs(find_table) do
+    local request_mapping_value = M.get_request_mapping_value(path)
+    
+    -- Check for method-specific endpoints  
+    local method_key = method .. "_ENDPOINT"
+    if mapping_object[method_key] then
+      for _, mapping_item in ipairs(mapping_object[method_key]) do
+        local method_mapping_value = mapping_item.value or ""
+        local line_number = mapping_item.line_number
+        local column = mapping_item.column
+        local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
+        cache.create_preview_entry(endpoint, path, line_number, column)
+      end
+    end
+  end
+end
+
 -- Create endpoint table using current framework (new framework-agnostic version)
 M.create_endpoint_table = function(method)
   local state = require "endpoint.state"
   local config = state.get_config()
-
+  
+  -- Detect current framework
+  local framework_name = framework.get_current_framework_name(config)
+  
   if config and config.debug then
-    print("DEBUG: Scanning for " .. method .. " endpoints")
+    print("DEBUG: Using " .. framework_name .. " framework to scan for " .. method .. " endpoints")
   end
-
-  -- Get grep command from current framework
+  
+  -- For Spring, use existing annotation-based system for compatibility
+  if framework_name == "spring" then
+    local annotation = enums.annotation[method .. "_MAPPING"]
+    if annotation then
+      M.create_spring_find_table(annotation)
+      return
+    end
+  end
+  
+  -- For other frameworks, use new framework system
   local success, cmd = pcall(framework.get_grep_cmd, method, config)
   if not success then
     vim.notify("Error: " .. cmd, vim.log.levels.ERROR)
@@ -126,7 +174,6 @@ M.create_endpoint_table = function(method)
     local parsed = framework.parse_line(line, method, config)
     if parsed then
       -- Store in cache using the parsed information
-      local endpoint_key = parsed.file_path .. ":" .. parsed.line_number
       cache.create_find_table_entry(parsed.file_path, method .. "_ENDPOINT")
       cache.insert_to_find_table {
         path = parsed.file_path,
