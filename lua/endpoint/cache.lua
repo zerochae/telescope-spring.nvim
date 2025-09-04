@@ -1,7 +1,7 @@
 local M = {}
 
-local spring_find_table = {}
-local spring_preview_table = {}
+local find_table = {}
+local preview_table = {}
 local cache_timestamp = {}
 local scanned_annotations = {} -- Track which annotations were directly scanned
 
@@ -48,18 +48,18 @@ local get_cache_config = function()
 end
 
 M.clear_tables = function()
-  spring_find_table = {}
-  spring_preview_table = {}
+  find_table = {}
+  preview_table = {}
   cache_timestamp = {}
   scanned_annotations = {}
 end
 
 M.get_find_table = function()
-  return spring_find_table
+  return find_table
 end
 
 M.get_preview_table = function()
-  return spring_preview_table
+  return preview_table
 end
 
 -- Helper functions for persistent cache
@@ -111,7 +111,7 @@ end
 
 M.has_cached_data = function(annotation)
   -- Check if we have any data for this annotation
-  for _, mapping_object in pairs(spring_find_table) do
+  for _, mapping_object in pairs(find_table) do
     if mapping_object[annotation] then
       return true
     end
@@ -149,7 +149,7 @@ M.has_cached_data_for_annotation = function(annotation)
 
   -- In other modes, check if we have data for this annotation
   local has_data = false
-  for _, mapping_object in pairs(spring_find_table) do
+  for _, mapping_object in pairs(find_table) do
     if mapping_object[annotation] then
       has_data = true
       break
@@ -167,29 +167,29 @@ M.has_cached_data_for_annotation = function(annotation)
 end
 
 M.create_find_table_entry = function(path, annotation)
-  if not spring_find_table[path] then
-    spring_find_table[path] = {}
+  if not find_table[path] then
+    find_table[path] = {}
   end
 
-  if not spring_find_table[path][annotation] then
-    spring_find_table[path][annotation] = {}
+  if not find_table[path][annotation] then
+    find_table[path][annotation] = {}
   end
 end
 
 M.insert_to_find_table = function(opts)
   table.insert(
-    spring_find_table[opts.path][opts.annotation],
+    find_table[opts.path][opts.annotation],
     { value = opts.value, line_number = opts.line_number, column = opts.column }
   )
 end
 
 M.insert_to_find_request_table = function(opts)
-  spring_find_table[opts.path][opts.annotation] =
+  find_table[opts.path][opts.annotation] =
     { value = opts.value, line_number = opts.line_number, column = opts.column }
 end
 
 M.create_preview_entry = function(endpoint, path, line_number, column)
-  spring_preview_table[endpoint] = {
+  preview_table[endpoint] = {
     path = path,
     line_number = line_number,
     column = column,
@@ -209,7 +209,7 @@ M.save_to_file = function()
   -- Save find table
   local find_file = io.open(cache_files.find_cache_file, "w")
   if find_file then
-    find_file:write("return " .. vim.inspect(spring_find_table))
+    find_file:write("return " .. vim.inspect(find_table))
     find_file:close()
   end
 
@@ -240,7 +240,7 @@ M.load_from_file = function()
   if file_exists(cache_files.find_cache_file) then
     local ok, data = pcall(dofile, cache_files.find_cache_file)
     if ok and data then
-      spring_find_table = data
+      find_table = data
     end
   end
 
@@ -298,7 +298,7 @@ M.show_cache_status = function()
 
   -- Show actual cache contents for debugging
   table.insert(status_lines, "=== Find Table Contents (showing all entries) ===")
-  for path, path_data in pairs(spring_find_table) do
+  for path, path_data in pairs(find_table) do
     table.insert(status_lines, "Path: " .. path)
     for annotation, entries in pairs(path_data) do
       find_count = find_count + (type(entries) == "table" and #entries or 1)

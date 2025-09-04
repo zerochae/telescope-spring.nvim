@@ -6,7 +6,7 @@ local create_preview_table = function(method)
   -- TODO: Update to use framework-agnostic preview table creation
   -- For now, convert method to annotation for backward compatibility
   local annotation = "@" .. method:sub(1, 1):upper() .. method:sub(2):lower() .. "Mapping"
-  util.create_spring_preview_table(annotation)
+  util.create_spring_preview_table(annotation) -- TODO: Replace with framework-agnostic version
 end
 
 return function(method)
@@ -36,7 +36,7 @@ return function(method)
             util.set_cursor_on_entry(entry, bufnr, self.state.winid)
 
             -- Add highlighting for the annotation line
-            local ns_id = vim.api.nvim_create_namespace "spring_annotation_highlight"
+            local ns_id = vim.api.nvim_create_namespace "endpoint_annotation_highlight"
             vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
 
             if entry.lnum then

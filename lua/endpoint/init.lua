@@ -14,7 +14,7 @@ M.get_config = function()
 end
 
 -- M.pick_all_mapping = function(opts)
---   spring_picker(opts, enums.methods.ALL)
+--   endpoint_picker(opts, enums.methods.ALL)
 -- end
 
 M.pick_get_mapping = function(opts)
@@ -38,7 +38,7 @@ M.setup = function(opts)
   M.config = vim.tbl_deep_extend("force", {}, default_config, opts)
   -- Update state with the new config
   state.set_config(M.config)
-  vim.g.spring_setup_called = true
+  vim.g.endpoint_setup_called = true
 
   -- Validate configuration
   if opts.cache_ttl and type(opts.cache_ttl) ~= "number" then

@@ -7,7 +7,7 @@ local util = require "endpoint.util"
 
 return function(opts, method)
   opts = opts or {}
-  -- U.set_spring_tables() -- Removed: This was clearing cache on every call
+  -- Cache management is now handled automatically by the framework system
 
   -- Use method directly instead of converting to annotation
   local finder = endpoint_finder(method)

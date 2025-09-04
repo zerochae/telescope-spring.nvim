@@ -12,15 +12,15 @@ return function(prompt_bufnr)
     end
 
     -- Get the actual file path from preview table
-    local spring_preview_table = util.get_spring_preview_table()
+    local preview_table = util.get_preview_table()
     local endpoint = entry.value
 
-    if not spring_preview_table[endpoint] then
+    if not preview_table[endpoint] then
       vim.notify("Action data not found for: " .. tostring(endpoint), vim.log.levels.ERROR)
       return
     end
 
-    local file_path = spring_preview_table[endpoint].path
+    local file_path = preview_table[endpoint].path
 
     vim.cmd("edit " .. file_path)
 
@@ -31,8 +31,8 @@ return function(prompt_bufnr)
       -- Create entry with path info for cursor positioning
       local cursor_entry = {
         path = file_path,
-        lnum = spring_preview_table[endpoint].line_number,
-        col = spring_preview_table[endpoint].column,
+        lnum = preview_table[endpoint].line_number,
+        col = preview_table[endpoint].column,
       }
       util.set_cursor_on_entry(cursor_entry, bufnr, 0)
     end)
