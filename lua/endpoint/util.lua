@@ -103,6 +103,10 @@ M.create_endpoint_preview_table = function(method)
   
   -- For Spring, use existing annotation-based preview creation for compatibility
   if framework_name == "spring" then
+    -- Always scan @RequestMapping first to get class-level paths
+    M.create_spring_preview_table(enums.annotation.REQUEST_MAPPING)
+    
+    -- Then scan the specific method mapping for preview
     local annotation = enums.annotation[method .. "_MAPPING"]
     if annotation then
       M.create_spring_preview_table(annotation)
@@ -143,6 +147,10 @@ M.create_endpoint_table = function(method)
   
   -- For Spring, use existing annotation-based system for compatibility
   if framework_name == "spring" then
+    -- Always scan @RequestMapping first to get class-level paths
+    M.create_spring_find_table(enums.annotation.REQUEST_MAPPING)
+    
+    -- Then scan the specific method mapping
     local annotation = enums.annotation[method .. "_MAPPING"]
     if annotation then
       M.create_spring_find_table(annotation)
