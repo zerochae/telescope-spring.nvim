@@ -1,4 +1,4 @@
--- Spring Boot framework adapter
+-- Spring Boot framework implementation
 local base = require "endpoint.frameworks.base"
 local helper = require "endpoint.helper"
 

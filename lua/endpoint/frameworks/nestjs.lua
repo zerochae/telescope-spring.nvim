@@ -1,4 +1,4 @@
--- NestJS framework adapter
+-- NestJS framework implementation
 local base = require "endpoint.frameworks.base"
 local helper = require "endpoint.helper"
 
