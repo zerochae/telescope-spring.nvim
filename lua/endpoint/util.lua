@@ -1,6 +1,5 @@
 local M = {}
 
-local enums = require "endpoint.enum"
 local cache = require "endpoint.cache"
 local framework = require "endpoint.framework"
 
