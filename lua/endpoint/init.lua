@@ -2,7 +2,6 @@ local M = {}
 
 local default_config = require "endpoint.config"
 local endpoint_picker = require "endpoint.picker"
-local enums = require "endpoint.enum"
 local state = require "endpoint.state"
 
 -- Global config that will be used throughout the plugin
@@ -14,23 +13,23 @@ M.get_config = function()
 end
 
 -- M.pick_all_mapping = function(opts)
---   endpoint_picker(opts, enums.methods.ALL)
+--   endpoint_picker(opts, "ALL")
 -- end
 
 M.pick_get_mapping = function(opts)
-  endpoint_picker(opts, enums.methods.GET)
+  endpoint_picker(opts, "GET")
 end
 M.pick_post_mapping = function(opts)
-  endpoint_picker(opts, enums.methods.POST)
+  endpoint_picker(opts, "POST")
 end
 M.pick_put_mapping = function(opts)
-  endpoint_picker(opts, enums.methods.PUT)
+  endpoint_picker(opts, "PUT")
 end
 M.pick_delete_mapping = function(opts)
-  endpoint_picker(opts, enums.methods.DELETE)
+  endpoint_picker(opts, "DELETE")
 end
 M.pick_patch_mapping = function(opts)
-  endpoint_picker(opts, enums.methods.PATCH)
+  endpoint_picker(opts, "PATCH")
 end
 
 M.setup = function(opts)

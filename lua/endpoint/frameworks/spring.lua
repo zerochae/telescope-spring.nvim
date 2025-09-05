@@ -1,165 +1,63 @@
 -- Spring Boot framework implementation
 local base = require "endpoint.frameworks.base"
-local helper = require "endpoint.helper"
-
-local M = {}
-
--- HTTP method to annotation mapping
-local METHOD_TO_ANNOTATION = {
-  GET = "@GetMapping",
-  POST = "@PostMapping",
-  PUT = "@PutMapping",
-  DELETE = "@DeleteMapping",
-  PATCH = "@PatchMapping",
-}
 
 -- Method patterns for Spring Boot
 local PATTERNS = {
-  get = { "@GetMapping", "@RequestMapping.*method.*=.*GET" },
-  post = { "@PostMapping", "@RequestMapping.*method.*=.*POST" },
-  put = { "@PutMapping", "@RequestMapping.*method.*=.*PUT" },
-  delete = { "@DeleteMapping", "@RequestMapping.*method.*=.*DELETE" },
-  patch = { "@PatchMapping", "@RequestMapping.*method.*=.*PATCH" },
+  GET = { "@GetMapping", "@RequestMapping.*method.*=.*GET" },
+  POST = { "@PostMapping", "@RequestMapping.*method.*=.*POST" },
+  PUT = { "@PutMapping", "@RequestMapping.*method.*=.*PUT" },
+  DELETE = { "@DeleteMapping", "@RequestMapping.*method.*=.*DELETE" },
+  PATCH = { "@PatchMapping", "@RequestMapping.*method.*=.*PATCH" },
 }
 
--- Get grep command for Spring Boot endpoints
-function M.get_grep_cmd(method, config)
-  local annotation = METHOD_TO_ANNOTATION[method:upper()]
-  if not annotation then
-    error("Unsupported HTTP method: " .. method)
-  end
+-- Create a new Spring framework object inheriting from base
+local M = base.new {}
 
-  local file_patterns = M.get_file_patterns()
-  local exclude_patterns = M.get_exclude_patterns()
-
-  local cmd = "rg"
-  cmd = cmd .. " --line-number --column --no-heading --color=never"
-  cmd = cmd .. " --case-sensitive"
-  cmd = cmd .. " --type java" -- Use built-in Java type for better performance
-
-  -- Add exclude patterns
-  for _, pattern in ipairs(exclude_patterns) do
-    cmd = cmd .. " --glob '!" .. pattern .. "'"
-  end
-
-  -- Add additional ripgrep args if configured
-  if config.rg_additional_args and config.rg_additional_args ~= "" then
-    cmd = cmd .. " " .. config.rg_additional_args
-  end
-
-  -- Search for the annotation - simplified pattern for speed
-  cmd = cmd .. " '" .. annotation .. "'"
-
-  return cmd
+function M:get_patterns(method)
+  return PATTERNS[method:upper()] or {}
 end
 
--- Parse Spring Boot annotation line
-function M.parse_line(line, method, config)
-  -- Spring Boot line format: "filepath:line:column:content"
-  local parts = {}
-  local count = 0
-  for part in line:gmatch "([^:]+)" do
-    count = count + 1
-    parts[count] = part
-    if count >= 4 then -- Only need first 4 parts
-      break
-    end
-  end
-
-  if count < 4 then
-    return nil
-  end
-
-  local file_path = parts[1]
-  local line_number = tonumber(parts[2])
-  local column = tonumber(parts[3])
-
-  -- Extract everything after the third colon as content
-  local content_start = line:find(":", line:find(":", line:find ":" + 1) + 1) + 1
-  local content = line:sub(content_start)
-
-  if not line_number or not column then
-    return nil
-  end
-
-  -- Parse the endpoint path from the annotation
-  local endpoint_path = ""
-
-  -- Look for value inside parentheses: @GetMapping("/api/users") or @GetMapping(value = "/api/users")
-  local value_pattern = content:match '%("([^"]*)"%)'
-    or content:match 'value%s*=%s*"([^"]*)"'
-    or content:match "value%s*=%s*'([^']*)'"
-
-  if value_pattern then
-    endpoint_path = value_pattern
-  end
-
-  return {
-    file_path = file_path,
-    line_number = line_number,
-    column = column,
-    endpoint_path = endpoint_path,
-    method = method:upper(),
-    raw_line = line,
-    content = content,
-  }
+function M:get_file_types()
+  return { "java" }
 end
 
--- Get method patterns
-function M.get_patterns()
-  return PATTERNS
-end
-
--- Check if this adapter can handle the line
-function M.can_handle(line)
-  -- Check if line contains Spring Boot annotations
-  for _, patterns in pairs(PATTERNS) do
-    for _, pattern in ipairs(patterns) do
-      if line:match(pattern) then
-        return true
-      end
-    end
-  end
-  return false
-end
-
--- Get file patterns for Spring Boot
-function M.get_file_patterns()
-  return { "**/*.java" }
-end
-
--- Get exclude patterns for Spring Boot
-function M.get_exclude_patterns()
+function M:get_exclude_patterns()
   return { "**/target/**", "**/build/**" }
 end
 
--- Extract base path from @RequestMapping at class level
-function M.get_base_path(file_path, line_number)
-  -- Read the file and look for @RequestMapping on class declaration
+-- Extracts the endpoint path from the annotation content
+function M:extract_endpoint_path(content, method)
+  -- Look for value inside parentheses: @GetMapping("/api/users") or @GetMapping(value = "/api/users")
+  local endpoint_path = content:match '%("%s*([^"]*)%s*"%)' -- e.g. ("/api/users")
+    or content:match 'value%s*=%s*"([^"]*)"' -- e.g. value = "/api/users"
+    or content:match 'path%s*=%s*"([^"]*)"' -- e.g. path = "/api/users"
+    or ""
+
+  return endpoint_path
+end
+
+-- Extracts base path from @RequestMapping at the class level
+function M:get_base_path(file_path, line_number)
+  -- This logic is specific to Spring and remains here
   local ok, lines = pcall(vim.fn.readfile, file_path)
   if not ok or not lines then
     return ""
   end
 
-  -- Look backwards from the method line to find class-level @RequestMapping
   local class_mapping = ""
-  local in_class = false
-
+  -- Look backwards from the method line to find a class-level @RequestMapping
   for i = line_number, 1, -1 do
     local line = lines[i] or ""
 
-    -- Check if we hit a class declaration
-    if line:match "class%s+%w+" then
-      in_class = true
-    elseif in_class and line:match "@RequestMapping" then
-      -- Extract value from @RequestMapping
-      local value = line:match '@RequestMapping%("([^"]*)"%)'
+    if line:match "@RequestMapping" and not line:match "method%s*=" then
+      local value = line:match '@RequestMapping%("%s*([^"]*)%s*"%)'
         or line:match '@RequestMapping%s*%(.-value%s*=%s*"([^"]*)"'
         or ""
       class_mapping = value
-      break
-    elseif line:match "^package " then
-      -- Stop if we hit package declaration (went too far)
+      break -- Found the class-level mapping
+    end
+    -- Stop if we hit the package declaration or another class definition, means we went too far
+    if line:match "^package " or (line:match "class%s+%w+" and i < line_number) then
       break
     end
   end
@@ -167,40 +65,37 @@ function M.get_base_path(file_path, line_number)
   return class_mapping
 end
 
--- Additional Spring-specific utility functions
-function M.is_request_mapping_line(line)
-  return line:match "@RequestMapping" ~= nil
-end
-
-function M.extract_request_mapping_methods(content)
-  -- Extract methods from @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
-  local methods = {}
-  local method_pattern = "RequestMethod%.(%w+)"
-
-  for method in content:gmatch(method_pattern) do
-    table.insert(methods, method)
+-- Override the default grep command builder to be simpler for Spring,
+-- as each annotation is unique per method.
+function M:get_grep_cmd(method, config)
+  local patterns = self:get_patterns(method)
+  if not patterns or #patterns == 0 then
+    error("No patterns defined for method: " .. method)
   end
 
-  return methods
-end
+  local file_types = self:get_file_types()
+  local exclude_patterns = self:get_exclude_patterns()
 
-function M.parse_request_mapping(line)
-  local parsed = M.parse_line(line, "REQUEST")
-  if not parsed then
-    return nil
+  local cmd = "rg"
+  cmd = cmd .. " --line-number --column --no-heading --color=never"
+  cmd = cmd .. " --case-sensitive"
+
+  for _, file_type in ipairs(file_types) do
+    cmd = cmd .. " --type " .. file_type
   end
 
-  -- Extract methods if specified
-  local methods = M.extract_request_mapping_methods(parsed.content)
+  for _, pattern in ipairs(exclude_patterns) do
+    cmd = cmd .. " --glob '!" .. pattern .. "'"
+  end
 
-  return {
-    file_path = parsed.file_path,
-    line_number = parsed.line_number,
-    column = parsed.column,
-    endpoint_path = parsed.endpoint_path,
-    methods = methods,
-    content = parsed.content,
-  }
+  if config and config.rg_additional_args and config.rg_additional_args ~= "" then
+    cmd = cmd .. " " .. config.rg_additional_args
+  end
+
+  -- Spring annotations are distinct enough that we can search for the first pattern.
+  cmd = cmd .. " '" .. patterns[1] .. "'"
+
+  return cmd
 end
 
 return M

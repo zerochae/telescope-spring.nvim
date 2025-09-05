@@ -72,18 +72,15 @@ local function file_exists(path)
   return vim.fn.filereadable(path) == 1
 end
 
-M.is_cache_valid = function(annotation)
+M.is_cache_valid = function(key)
   local cache_config = get_cache_config()
-  local cached_time = cache_timestamp[annotation]
+  local cached_time = cache_timestamp[key]
 
   if cache_config.mode == "persistent" then
-    -- For persistent mode, always valid if data exists in memory or file
-    return cached_time ~= nil or M.has_cached_data(annotation)
+    return cached_time ~= nil
   elseif cache_config.mode == "session" then
-    -- Cache is valid for the entire nvim session if it exists
     return cached_time ~= nil
   else
-    -- Time-based cache validation
     if not cached_time then
       return false
     end
@@ -109,62 +106,13 @@ M.update_cache_timestamp = function(annotation)
   end
 end
 
-M.has_cached_data = function(annotation)
-  -- Check if we have any data for this annotation
-  for _, mapping_object in pairs(find_table) do
-    if mapping_object[annotation] then
-      return true
-    end
-  end
-  return false
+
+
+M.should_use_cache = function(key)
+  return M.is_cache_valid(key)
 end
 
-M.should_use_cache = function(annotation)
-  local cache_config = get_cache_config()
 
-  -- In persistent mode, check if we have specific annotation data
-  if cache_config.mode == "persistent" then
-    return M.is_cache_valid(annotation) and M.has_cached_data_for_annotation(annotation)
-  end
-
-  -- In other modes, use existing logic
-  return M.is_cache_valid(annotation) and M.has_cached_data(annotation)
-end
-
-M.has_cached_data_for_annotation = function(annotation)
-  -- In persistent mode, check if this annotation was directly scanned
-  local cache_config = get_cache_config()
-  if cache_config.mode == "persistent" then
-    local was_scanned = scanned_annotations[annotation] ~= nil
-
-    -- Debug logging
-    local state = require "endpoint.state"
-    local config = state.get_config()
-    if config and config.debug then
-      print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") - was_scanned = " .. tostring(was_scanned))
-    end
-
-    return was_scanned
-  end
-
-  -- In other modes, check if we have data for this annotation
-  local has_data = false
-  for _, mapping_object in pairs(find_table) do
-    if mapping_object[annotation] then
-      has_data = true
-      break
-    end
-  end
-
-  -- Debug logging
-  local state = require "endpoint.state"
-  local config = state.get_config()
-  if config and config.debug then
-    print("DEBUG: has_cached_data_for_annotation(" .. annotation .. ") = " .. tostring(has_data))
-  end
-
-  return has_data
-end
 
 M.create_find_table_entry = function(path, annotation)
   if not find_table[path] then

@@ -94,41 +94,25 @@ return function(method) -- method is HTTP method like 'GET', 'POST', etc.
     results = (function()
       -- Create endpoint tables using current framework
       create_find_table(method)
-      
+
       -- Get results from cache
       local finder_table = util.get_find_table()
       local finder_results = {}
 
-      -- TODO: Replace this Spring-specific logic with framework-agnostic version
-      -- For now, try to work with existing cache structure
+      -- Framework-agnostic logic
       for path, mapping_object in pairs(finder_table) do
-        local request_mapping_value = util.get_request_mapping_value(path)
-        local method_key = method .. "_ENDPOINT"
-        
-        -- Check for method-specific endpoints
-        if mapping_object[method_key] then
-          for _, mapping_item in ipairs(mapping_object[method_key]) do
-            local method_mapping_value = mapping_item.value or ""
-            local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-            table.insert(finder_results, {
-              value = endpoint,
-              method = method,
-              path = request_mapping_value .. method_mapping_value,
-            })
-          end
-        end
-        
-        -- Also check Spring annotations for backward compatibility
-        local annotation = "@" .. method:sub(1,1):upper() .. method:sub(2):lower() .. "Mapping"
-        if mapping_object[annotation] then
-          for _, mapping_item in ipairs(mapping_object[annotation]) do
-            local method_mapping_value = mapping_item.value or ""
-            local endpoint = method .. " " .. request_mapping_value .. method_mapping_value
-            table.insert(finder_results, {
-              value = endpoint,
-              method = method,
-              path = request_mapping_value .. method_mapping_value,
-            })
+        for annotation, mappings in pairs(mapping_object) do
+          local current_method = annotation:match "(.+)_ENDPOINT$"
+          if current_method and current_method == method then
+            for _, mapping_item in ipairs(mappings) do
+              local endpoint_path = mapping_item.value or ""
+              local endpoint = method .. " " .. endpoint_path
+              table.insert(finder_results, {
+                value = endpoint,
+                method = method,
+                path = endpoint_path,
+              })
+            end
           end
         end
       end
