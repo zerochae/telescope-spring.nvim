@@ -1,3 +1,8 @@
+# 🚨 Deprecated
+
+This project is no longer maintained.  
+Please use [zerochae/endpoint.nvim](https://github.com/zerochae/endpoint.nvim) instead.
+
 # telescope-spring.nvim
 
 A powerful Telescope picker for quickly finding and navigating Spring Boot API endpoints with customizable UI and smart caching.
